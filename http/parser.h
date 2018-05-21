@@ -1,13 +1,15 @@
 #ifndef HTTP_PARSER_H
 #define HTTP_PARSER_H
 
+#include <stdint.h>
+#include <string>
+
 #include <boost/asio/buffer.hpp>
 #include <boost/move/unique_ptr.hpp>
 
+#include "extra/http_parser.h"
 #include "http/packet.h"
 #include "server/packet_handler.h"
-
-#include "extra/http_parser.h"
 
 namespace http {
 
@@ -33,6 +35,11 @@ class Parser {
    * @brief Contructor
    */
   Parser();
+
+  /**
+   * @brief Destructor
+   */
+  virtual ~Parser();
 
   /**
    * @brief Parse buffer
@@ -94,6 +101,24 @@ class Parser {
   const char* GetErrString(unsigned int error);
 
   /**
+   * @brief Get HTTP status string
+   *
+   * @param status Status code
+   *
+   * @return string
+   */
+  const char* GetStatusString(unsigned int status);
+
+  /**
+   * @brief Get HTTP method string
+   *
+   * @param method Method code
+   *
+   * @return string
+   */
+  const char* GetMethodString(unsigned int method);
+
+  /**
    * @brief Handle common callback
    *
    * @param func Pointer on member function
@@ -116,10 +141,14 @@ class Parser {
   static int SHandleData(cpp_http_data_cb func,
                          http_parser* c_parser, const char* at, size_t length);
 
-  PacketPtr packet_;
   server::PacketHandler::Status status_;
+  PacketPtr packet_;
   http_parser_settings setting_;
   boost::movelib::unique_ptr<http_parser> parser_;
+  std::string current_field_;
+  Packet::BodyPtr body_;
+  uint32_t body_index_;
+  uint32_t content_length_;
 };
 
 inline server::PacketHandler::Status Parser::GetStatus() const {

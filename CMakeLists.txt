@@ -23,6 +23,7 @@ add_executable(${PROJECT_NAME}
     "tcp/server.cc"
     "tcp/server_accessor.h"
     "http/packet.h"
+    "http/packet.cc"
     "http/parser.h"
     "http/parser.cc"
     "http/packet_handler.h"

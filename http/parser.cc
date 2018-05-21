@@ -1,14 +1,19 @@
 #include "http/parser.h"
 #include "common/logger.h"
 
-#include <string>
-
 namespace http {
 
 Parser::Parser()
     : status_(server::PacketHandler::Status::ERROR),
       packet_(new Packet()),
-      parser_(new http_parser()) {
+      setting_(),
+      parser_(new http_parser()),
+      current_field_(),
+      body_(nullptr),
+      body_index_(0),
+      content_length_(0) {
+  LOG(LogLevel::DEBUG) << __FUNCTION__;
+
   memset(&setting_, 0, sizeof(setting_));
 
   setting_.on_message_begin = &Parser::SHandleMsgBegin;
@@ -23,6 +28,10 @@ Parser::Parser()
 
   http_parser_init(parser_.get(), HTTP_BOTH);
   parser_->data = this;
+}
+
+Parser::~Parser() {
+  LOG(LogLevel::DEBUG) << __FUNCTION__;
 }
 
 server::PacketHandler::Status Parser::Parse(
@@ -86,7 +95,7 @@ int Parser::SHandleHeaderChunk(http_parser* c_parser) {
 }
 
 int Parser::HandleMsgBegin(http_parser* c_parser) {
-  LOG(LogLevel::DEBUG) << "BEGIN";
+  LOG(LogLevel::DEBUG) << __FUNCTION__;
   return 0;
 }
 
@@ -104,37 +113,125 @@ int Parser::HandleStatus(http_parser* c_parser,
 
 int Parser::HandleHeaderField(http_parser* c_parser,
                               const char* at, size_t length) {
-  LOG(LogLevel::DEBUG) << "Field: " << std::string(at, length);
-  return 0;
+  LOG(LogLevel::DEBUG) << __FUNCTION__;
+  int retval = -1;
+
+  if (nullptr != at) {
+    current_field_ = std::string(at, length);
+    LOG(LogLevel::DEBUG) << "Field: " << current_field_;
+    retval = 0;
+  }
+
+  return retval;
 }
 
 int Parser::HandleHeaderValue(http_parser* c_parser,
                               const char* at, size_t length) {
-  LOG(LogLevel::DEBUG) << "Value: " << std::string(at, length);
-  return 0;
+  LOG(LogLevel::DEBUG) << __FUNCTION__;
+
+  int retval = -1;
+  if (nullptr != at) {
+    std::string value(at, length);
+    LOG(LogLevel::DEBUG) << "Value: " << value;
+
+    LOG(LogLevel::INFO)
+        << "Header field. {Key:(" << current_field_ << ") "
+           "Value:(" << value << ")";
+
+    packet_->AddHeaderField(current_field_, value);
+    retval = 0;
+  }
+
+  return retval;
 }
 
 int Parser::HandleHeaderComplete(http_parser* c_parser) {
-  LOG(LogLevel::DEBUG) << "HEAD COMPLETE";
-  return 0;
+  LOG(LogLevel::DEBUG) << __FUNCTION__;
+
+  int retval = -1;
+  if (nullptr != c_parser) {
+    LOG(LogLevel::INFO)
+        << "HTTP(" << c_parser->http_major
+        << "." << c_parser->http_minor << ") "
+        << "status(" << c_parser->status_code << " "
+        << GetStatusString(c_parser->status_code) << ") "
+        << "method(" << c_parser->method << " "
+        << GetMethodString(c_parser->method) << ")";
+
+    packet_->Init(c_parser->http_major, c_parser->http_minor,
+        static_cast<Packet::Status>(c_parser->status_code),
+        static_cast<Packet::Method>(c_parser->method),
+        ((0 == c_parser->status_code) ?
+            Packet::Type::REQUEST : Packet::Type::REQUEST));
+
+    LOG(LogLevel::INFO) << "Content length:" << c_parser->content_length;
+    content_length_ = c_parser->content_length;
+
+    retval = 0;
+  }
+
+  return retval;
 }
 
 int Parser::HandleBody(http_parser* c_parser,
                        const char* at, size_t length) {
-  LOG(LogLevel::DEBUG) << "BODY: " << std::string(at, length);
-  return 0;
+  LOG(LogLevel::DEBUG) << __FUNCTION__ << "(" << length << ")";
+
+  int retval = -1;
+  do {
+    if (nullptr == c_parser) {
+      break;
+    }
+
+    if (nullptr == at) {
+      break;
+    }
+
+    if (nullptr == body_) {
+      if ((0 < content_length_) && (Packet::MAX_BODY_LENGTH >= content_length_)) {
+        LOG(LogLevel::DEBUG) << "Allocate http body buffer. Size:"
+                             << content_length_;
+        body_.reset(new Packet::Body(content_length_));
+      }
+    }
+
+    if (nullptr == body_) {
+      break;
+    }
+
+    if ((0 < length) && ((content_length_ - body_index_) >= length)) {
+      LOG(LogLevel::DEBUG)
+          << "Copy http body data at index(" << body_index_ << ") "
+          << "length(" << length << ")";
+
+      memcpy(&(body_->at(body_index_)), at, length);
+      body_index_ += length;
+    } else {
+      break;
+    }
+
+    retval = 0;
+  } while (false);
+
+  return retval;
 }
 
 int Parser::HandleMsgComplete(http_parser* c_parser) {
-  LOG(LogLevel::DEBUG) << "MSG COMPLETE";
-  //common fields here
+  LOG(LogLevel::DEBUG) << __FUNCTION__;
+
+  if (nullptr != body_) {
+    LOG(LogLevel::DEBUG) << "HTTP Body: "
+        << std::string(reinterpret_cast<char*>(&body_->at(0)), body_->size());
+    packet_->AssignBody(boost::move(body_));
+  }
+
   status_ = server::PacketHandler::Status::OK;
 
   return 0;
 }
 
 int Parser::HandleHeaderChunk(http_parser* c_parser) {
-  LOG(LogLevel::DEBUG) << "HEAD CHUNK";
+  LOG(LogLevel::DEBUG) << __FUNCTION__;
 
   status_ = server::PacketHandler::Status::PART_RECEIVED;
 
@@ -144,11 +241,35 @@ int Parser::HandleHeaderChunk(http_parser* c_parser) {
 const char* Parser::GetErrString(unsigned int error) {
   const char* str = "INVALID_ERROR";
 
-#define HTTP_ERRNO_STR_GEN(n, s) case HPE_##n: { str=s; break;}
+#define HTTP_ERRNO_STR_GEN(n, s) case HPE_##n: { str=s; break; }
   switch (error) {
     HTTP_ERRNO_MAP(HTTP_ERRNO_STR_GEN)
   }
 #undef HTTP_ERRNO_STR_GEN
+
+  return str;
+}
+
+const char*Parser::GetStatusString(unsigned int status) {
+  const char* str = "INVALID_STATUS";
+
+#define XX(num, name, string) case HTTP_STATUS_##name: { str=#string; break; }
+  switch (status) {
+    HTTP_STATUS_MAP(XX)
+  }
+#undef XX
+
+  return str;
+}
+
+const char*Parser::GetMethodString(unsigned int method) {
+  const char* str = "INVALID_METHOD";
+
+#define XX(num, name, string) case HTTP_##name: { str=#string; break; }
+  switch (method) {
+    HTTP_METHOD_MAP(XX)
+  }
+#undef XX
 
   return str;
 }
