@@ -6,7 +6,7 @@
 namespace http {
 
 Parser::Parser()
-    : status_(server::PacketHandler::Status::NOT_SUPPORTED),
+    : status_(server::PacketHandler::Status::ERROR),
       packet_(new Packet()),
       parser_(new http_parser()) {
   memset(&setting_, 0, sizeof(setting_));

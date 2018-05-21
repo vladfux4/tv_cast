@@ -16,7 +16,7 @@ PacketHandler::~PacketHandler() {
 server::PacketHandler::Status PacketHandler::Handle(
     server::Session& session,
     const boost::asio::const_buffer& buffer) {
-  Status status = Status::NOT_SUPPORTED;
+  Status status = Status::ERROR;
 
   do {
     if (0 == buffer.size()) {

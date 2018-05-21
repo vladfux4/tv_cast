@@ -16,7 +16,6 @@ class PacketHandler {
    */
   enum class Status {
     OK,
-    NOT_SUPPORTED,
     PART_RECEIVED,
     ERROR
   };
