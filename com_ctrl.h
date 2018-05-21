@@ -1,11 +1,10 @@
 #include <boost/container/vector.hpp>
 
-#include "server/packet_handler.h"
 #include "tcp/server.h"
 #include "http/packet.h"
-#include "http/parser.h"
+#include "http/packet_handler.h"
 
-class CommunicationController : public server::PacketHandler {
+class CommunicationController {
  public:
   /**
    * @brief Constructor
@@ -16,9 +15,6 @@ class CommunicationController : public server::PacketHandler {
    * @brief Destructor
    */
   virtual ~CommunicationController();
-
-  virtual Status Handle(server::Session& session,
-                        const boost::asio::const_buffer& buffer);
 
   /**
    * @brief Register HTTP Observer
@@ -33,18 +29,6 @@ class CommunicationController : public server::PacketHandler {
   void Run();
 
  private:
-
-  /**
-   * @brief DeleteHttpParser
-   */
-  void CreateHttpParser();
-
-  /**
-   * @brief DeleteHttpParser
-   */
-  void DeleteHttpParser();
-
   tcp::Server tcp_;
-  boost::container::vector<http::Packet::Observer*> http_observers_;
-  http::Parser* current_http_parser_;
+  http::PacketHandler http_;
 };

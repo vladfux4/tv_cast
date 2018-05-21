@@ -25,12 +25,19 @@ class Server : server::PacketHandler {
    * @param packet_handler Reference on packet handler
    * @param port TCP connection local port
    */
-  Server(server::PacketHandler& packet_handler, const uint16_t port);
+  Server(const uint16_t port);
 
   /**
    * @brief Destructor
    */
   virtual ~Server();
+
+  /**
+   * @brief Register TCP packets handler
+   *
+   * @param packet_handler Reference on handler
+   */
+  void RegisterHandler(server::PacketHandler& handler);
 
   /**
    * @brief Run server
@@ -75,7 +82,7 @@ class Server : server::PacketHandler {
    */
   void CreateSession();
 
-  server::PacketHandler& packet_handler_;
+  server::PacketHandler* packet_handler_;
   boost::asio::io_service io_service_;
   boost::asio::ip::tcp::acceptor acceptor_;
   SessionPool session_pool_;

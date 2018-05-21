@@ -7,8 +7,8 @@ namespace tcp {
 
 namespace impl = boost::asio::ip;
 
-Server::Server(server::PacketHandler& packet_handler, const uint16_t port)
-    : packet_handler_(packet_handler),
+Server::Server(const uint16_t port)
+    : packet_handler_(nullptr),
       acceptor_(io_service_, impl::tcp::endpoint(impl::tcp::v4(), port)),
       session_pool_() {
   LOG(LogLevel::DEBUG) << "New TCP Server on port:" << port;
@@ -17,6 +17,10 @@ Server::Server(server::PacketHandler& packet_handler, const uint16_t port)
 }
 
 Server::~Server() {
+}
+
+void Server::RegisterHandler(server::PacketHandler& handler) {
+  packet_handler_ = &handler;
 }
 
 void Server::Run() {
@@ -42,7 +46,12 @@ server::PacketHandler::Status Server::Handle(
     const boost::asio::const_buffer& buffer) {
   LOG(LogLevel::DEBUG) << "Handle packet buffer";
 
-  return packet_handler_.Handle(session, buffer);
+  auto status = server::PacketHandler::Status::ERROR;
+  if (nullptr != packet_handler_) {
+    status = packet_handler_->Handle(session, buffer);
+  }
+
+  return status;
 }
 
 void Server::CloseSession(const ServerAccessor& accessor) {

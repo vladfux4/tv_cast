@@ -25,6 +25,8 @@ add_executable(${PROJECT_NAME}
     "http/packet.h"
     "http/parser.h"
     "http/parser.cc"
+    "http/packet_handler.h"
+    "http/packet_handler.cc"
     "logic/logic.h"
     "logic/logic.cc"
     "extra/http_parser.h"
