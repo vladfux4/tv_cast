@@ -21,19 +21,15 @@ class Server : public net::SessionDispatcher {
   /**
    * @brief Constructor
    *
+   * @param io_service ASIO IO Service
    * @param port TCP connection local port
    */
-  Server(const uint16_t port);
+  Server(boost::asio::io_service& io_service, const uint16_t port);
 
   /**
    * @brief Destructor
    */
   virtual ~Server();
-
-  /**
-   * @brief Run server
-   */
-  void Run();
 
   /**
    * @brief Handle TCP accept
@@ -50,7 +46,7 @@ class Server : public net::SessionDispatcher {
    */
   void CreateSession();
 
-  boost::asio::io_service io_service_;
+  boost::asio::io_service& io_service_;
   boost::asio::ip::tcp::acceptor acceptor_;
 };
 

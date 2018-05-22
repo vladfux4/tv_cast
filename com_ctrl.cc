@@ -5,7 +5,8 @@
 #include "http/parser.h"
 
 CommunicationController::CommunicationController()
-  : tcp_(49080),
+  : io_service_(),
+    tcp_(io_service_, 49080),
     http_() {
   tcp_.RegisterHandler(http_);
 }
@@ -19,5 +20,5 @@ void CommunicationController::RegisterHttpObserver(
 }
 
 void CommunicationController::Run() {
-  tcp_.Run();
+  io_service_.run();
 }

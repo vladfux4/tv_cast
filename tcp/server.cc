@@ -7,8 +7,11 @@ namespace tcp {
 
 namespace impl = boost::asio::ip;
 
-Server::Server(const uint16_t port)
-    :  acceptor_(io_service_, impl::tcp::endpoint(impl::tcp::v4(), port)) {
+Server::Server(boost::asio::io_service& io_service,
+               const uint16_t port)
+    : io_service_(io_service),
+      acceptor_(io_service,
+          impl::tcp::endpoint(impl::tcp::v4(), port)) {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__ << "(" << port << ")";
 
   CreateSession();
@@ -16,12 +19,6 @@ Server::Server(const uint16_t port)
 
 Server::~Server() {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
-}
-
-void Server::Run() {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
-
-  io_service_.run();
 }
 
 void Server::HandleAccept(SessionPtr new_session,
