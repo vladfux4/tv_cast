@@ -10,11 +10,11 @@ Packet::Packet()
       type_(Type::INIT),
       header_fields_(),
       body_(nullptr) {
-  LOG(LogLevel::DEBUG) << __FUNCTION__;
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 }
 
 Packet::~Packet() {
-  LOG(LogLevel::DEBUG) << __FUNCTION__;
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 }
 
 void Packet::Init(const uint16_t http_major, const uint16_t http_minor,

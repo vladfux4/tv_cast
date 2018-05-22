@@ -9,7 +9,7 @@
 
 #include <boost/move/unique_ptr.hpp>
 
-#include "server/session.h"
+#include "net/session.h"
 #include "extra/http_parser.h"
 
 namespace http {
@@ -67,7 +67,7 @@ class Packet {
      * @param session Server session
      * @param packet Packet
      */
-    virtual void HandlePacket(server::Session& session,
+    virtual void HandlePacket(net::Session& session,
                               const Packet& packet) = 0;
   };
 

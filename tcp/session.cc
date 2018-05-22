@@ -6,24 +6,35 @@
 
 namespace tcp {
 
-Session::Session(const ServerAccessor& accessor,
+Session::Session(const net::SessionAccessor& accessor,
                  boost::asio::io_service& io_service)
-    : server_accessor_(accessor), socket_(io_service) {
-  LOG(LogLevel::DEBUG) << "New session";
+    : net::Session(accessor), socket_(io_service) {
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 }
 
 Session::~Session() {
-  LOG(LogLevel::DEBUG) << "Destroy session";
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 }
 
-void Session::Start() {
-  LOG(LogLevel::DEBUG) << "Start session";
+void Session::Read() {
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
-  Read();
+  socket_.async_read_some(boost::asio::buffer(buffer_),
+      boost::bind(&Session::HandleRead, this,
+          boost::asio::placeholders::error,
+                  boost::asio::placeholders::bytes_transferred));
+}
+
+void Session::Write(const boost::asio::const_buffer& buffer) {
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+
+    boost::asio::async_write(socket_,
+        buffer, boost::bind(&Session::HandleWrite, this,
+                    boost::asio::placeholders::error));
 }
 
 void Session::Close() {
-  LOG(LogLevel::DEBUG) << "Close session";
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
   socket_.cancel();
   socket_.close();
@@ -31,17 +42,17 @@ void Session::Close() {
 
 void Session::HandleRead(const boost::system::error_code& error,
                          size_t bytes_transferred) {
-  LOG(LogLevel::DEBUG) << "HandleRead";
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
   if (!error) {
-    server_accessor_.server.Handle(*this,
+    accessor_.dispatcher.Handle(*this,
         boost::asio::buffer(buffer_.data(), bytes_transferred));
     Read();
   } else {
     LOG(LogLevel::DEBUG) << error.message();
 
     if (boost::asio::error::eof == error) {
-      server_accessor_.server.Handle(*this,
+      accessor_.dispatcher.Handle(*this,
           boost::asio::buffer(buffer_.data(), 0));
     }
 
@@ -50,7 +61,7 @@ void Session::HandleRead(const boost::system::error_code& error,
 }
 
 void Session::HandleWrite(const boost::system::error_code& error) {
-  LOG(LogLevel::DEBUG) << "HandleWrite";
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
   if (error) {
     LOG(LogLevel::DEBUG) << error.message();
@@ -58,21 +69,8 @@ void Session::HandleWrite(const boost::system::error_code& error) {
   }
 }
 
-void Session::Write(const boost::asio::const_buffer& buffer) {
-    boost::asio::async_write(socket_,
-        buffer, boost::bind(&Session::HandleWrite, this,
-                    boost::asio::placeholders::error));
-}
-
-void Session::Read() {
-  socket_.async_read_some(boost::asio::buffer(buffer_),
-      boost::bind(&Session::HandleRead, this,
-          boost::asio::placeholders::error,
-                  boost::asio::placeholders::bytes_transferred));
-}
-
 void Session::Destroy() {
-  server_accessor_.server.CloseSession(server_accessor_);
+  accessor_.dispatcher.CloseSession(accessor_);
 }
 
 } // namespace server

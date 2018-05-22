@@ -5,23 +5,23 @@
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
 
-#include "server/session.h"
-#include "tcp/server_accessor.h"
+#include "net/session.h"
 
 namespace tcp {
 
 /**
  * @brief The TCP Session class
  */
-class Session : public server::Session {
+class Session : public net::Session {
  public:
   /**
    * @brief Constructor
    *
-   * @param Server accessor
+   * @param Session dispatcher accessor
    * @param io_service ASIO IO Service
    */
-  Session(const ServerAccessor& accessor, boost::asio::io_service& io_service);
+  Session(const net::SessionAccessor& accessor,
+          boost::asio::io_service& io_service);
 
   /**
    * @brief Destructor
@@ -29,9 +29,9 @@ class Session : public server::Session {
   virtual ~Session();
 
   /**
-   * @brief Start session
+   * @brief Start async read operation
    */
-  void Start();
+  virtual void Read() override;
 
   /**
    * @brief Start async write operation
@@ -46,8 +46,8 @@ class Session : public server::Session {
   /**
    * @brief Handle read from socket operation completed
    *
-   * @param error
-   * @param bytes_transferred
+   * @param error Error code
+   * @param bytes_transferred Data length
    */
   void HandleRead(const boost::system::error_code& error,
                   size_t bytes_transferred);
@@ -55,7 +55,7 @@ class Session : public server::Session {
   /**
    * @brief Handle write to socket operation completed
    *
-   * @param error
+   * @param error Error code
    */
   void HandleWrite(const boost::system::error_code& error);
 
@@ -66,37 +66,21 @@ class Session : public server::Session {
    */
   inline boost::asio::ip::tcp::socket& GetSocket();
 
-  /**
-   * @brief Get Server Accessor
-   *
-   * @return Server Accessor
-   */
-  inline const ServerAccessor& GetServerAccessor() const;
-
  private:
-  /**
-   * @brief Start async read operation
-   */
-  void Read();
-
   /**
    * @brief Destroy session
    */
   void Destroy();
 
-  ServerAccessor server_accessor_;
   boost::asio::ip::tcp::socket socket_;
-  boost::array<uint8_t, 2048> buffer_;
+  enum { MAX_BUFFER_SIZE = 2048 };
+  boost::array<uint8_t, MAX_BUFFER_SIZE> buffer_;
 };
 
 inline boost::asio::ip::tcp::socket& Session::GetSocket() {
   return socket_;
 }
 
-inline const ServerAccessor& Session::GetServerAccessor() const {
-  return server_accessor_;
-}
-
-} // namespace server
+} // namespace net
 
 #endif  // TCP_SESSION_H

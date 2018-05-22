@@ -18,7 +18,7 @@ class Logic : public http::Packet::Observer {
    * @param session Server session
    * @param packet Packet
    */
-  virtual void HandlePacket(server::Session& session,
+  virtual void HandlePacket(net::Session& session,
                             const http::Packet& packet) override;
 };
 

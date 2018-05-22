@@ -4,7 +4,7 @@
 namespace http {
 
 Parser::Parser()
-    : status_(server::PacketHandler::Status::ERROR),
+    : status_(net::PacketHandler::Status::ERROR),
       packet_(new Packet()),
       setting_(),
       parser_(new http_parser()),
@@ -12,7 +12,7 @@ Parser::Parser()
       body_(nullptr),
       body_index_(0),
       content_length_(0) {
-  LOG(LogLevel::DEBUG) << __FUNCTION__;
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
   memset(&setting_, 0, sizeof(setting_));
 
@@ -31,12 +31,12 @@ Parser::Parser()
 }
 
 Parser::~Parser() {
-  LOG(LogLevel::DEBUG) << __FUNCTION__;
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 }
 
-server::PacketHandler::Status Parser::Parse(
+net::PacketHandler::Status Parser::Parse(
     const boost::asio::const_buffer& buffer) {
-  status_ = server::PacketHandler::Status::PART_RECEIVED;
+  status_ = net::PacketHandler::Status::PART_RECEIVED;
 
   int nparsed = http_parser_execute(
       parser_.get(), &setting_,
@@ -47,7 +47,7 @@ server::PacketHandler::Status Parser::Parse(
     LOG(LogLevel::WARN) << "Parsing error code:"
                         << nparsed << " msg: "
                         << GetErrString(parser_->http_errno);
-    status_ = server::PacketHandler::Status::ERROR;
+    status_ = net::PacketHandler::Status::ERROR;
   }
 
   return status_;
@@ -95,7 +95,7 @@ int Parser::SHandleHeaderChunk(http_parser* c_parser) {
 }
 
 int Parser::HandleMsgBegin(http_parser* c_parser) {
-  LOG(LogLevel::DEBUG) << __FUNCTION__;
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
   return 0;
 }
 
@@ -113,7 +113,7 @@ int Parser::HandleStatus(http_parser* c_parser,
 
 int Parser::HandleHeaderField(http_parser* c_parser,
                               const char* at, size_t length) {
-  LOG(LogLevel::DEBUG) << __FUNCTION__;
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
   int retval = -1;
 
   if (nullptr != at) {
@@ -127,7 +127,7 @@ int Parser::HandleHeaderField(http_parser* c_parser,
 
 int Parser::HandleHeaderValue(http_parser* c_parser,
                               const char* at, size_t length) {
-  LOG(LogLevel::DEBUG) << __FUNCTION__;
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
   int retval = -1;
   if (nullptr != at) {
@@ -146,7 +146,7 @@ int Parser::HandleHeaderValue(http_parser* c_parser,
 }
 
 int Parser::HandleHeaderComplete(http_parser* c_parser) {
-  LOG(LogLevel::DEBUG) << __FUNCTION__;
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
   int retval = -1;
   if (nullptr != c_parser) {
@@ -175,7 +175,7 @@ int Parser::HandleHeaderComplete(http_parser* c_parser) {
 
 int Parser::HandleBody(http_parser* c_parser,
                        const char* at, size_t length) {
-  LOG(LogLevel::DEBUG) << __FUNCTION__ << "(" << length << ")";
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__ << "(" << length << ")";
 
   int retval = -1;
   do {
@@ -217,7 +217,7 @@ int Parser::HandleBody(http_parser* c_parser,
 }
 
 int Parser::HandleMsgComplete(http_parser* c_parser) {
-  LOG(LogLevel::DEBUG) << __FUNCTION__;
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
   if (nullptr != body_) {
     LOG(LogLevel::DEBUG) << "HTTP Body: "
@@ -225,15 +225,15 @@ int Parser::HandleMsgComplete(http_parser* c_parser) {
     packet_->AssignBody(boost::move(body_));
   }
 
-  status_ = server::PacketHandler::Status::OK;
+  status_ = net::PacketHandler::Status::OK;
 
   return 0;
 }
 
 int Parser::HandleHeaderChunk(http_parser* c_parser) {
-  LOG(LogLevel::DEBUG) << __FUNCTION__;
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
-  status_ = server::PacketHandler::Status::PART_RECEIVED;
+  status_ = net::PacketHandler::Status::PART_RECEIVED;
 
   return 0;
 }

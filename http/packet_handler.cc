@@ -13,8 +13,8 @@ PacketHandler::~PacketHandler() {
   DeleteHttpParser();
 }
 
-server::PacketHandler::Status PacketHandler::Handle(
-    server::Session& session,
+net::PacketHandler::Status PacketHandler::Handle(
+    net::Session& session,
     const boost::asio::const_buffer& buffer) {
   Status status = Status::ERROR;
 

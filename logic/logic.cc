@@ -6,7 +6,7 @@ namespace logic {
 Logic::Logic() {
 }
 
-void Logic::HandlePacket(server::Session& session,
+void Logic::HandlePacket(net::Session& session,
                          const http::Packet& packet) {
   LOG(LogLevel::INFO) << "LOGIC TEST";
 }

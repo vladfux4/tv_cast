@@ -1,10 +1,10 @@
-#ifndef SERVER_PACKET_HANDLER_H
-#define SERVER_PACKET_HANDLER_H
+#ifndef NET_PACKET_HANDLER_H
+#define NET_PACKET_HANDLER_H
 
 #include <boost/asio/buffer.hpp>
-#include "server/session.h"
+#include "net/session.h"
 
-namespace server {
+namespace net {
 
 /**
  * @brief The PacketHandler Interface class
@@ -37,6 +37,6 @@ class PacketHandler {
                         const boost::asio::const_buffer& buffer) = 0;
 };
 
-} // namespace server
+} // namespace net
 
-#endif  /* SERVER_PACKET_HANDLER_H */
+#endif  // NET_PACKET_HANDLER_H

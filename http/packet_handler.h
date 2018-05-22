@@ -1,10 +1,10 @@
-#include "server/packet_handler.h"
+#include "net/packet_handler.h"
 #include "http/packet.h"
 #include "http/parser.h"
 
 namespace http {
 
-class PacketHandler : public server::PacketHandler {
+class PacketHandler : public net::PacketHandler {
  public:
   /**
    * @brief Constructor
@@ -16,7 +16,7 @@ class PacketHandler : public server::PacketHandler {
    */
   virtual ~PacketHandler();
 
-  virtual Status Handle(server::Session& session,
+  virtual Status Handle(net::Session& session,
       const boost::asio::const_buffer& buffer) override;
 
   /**
