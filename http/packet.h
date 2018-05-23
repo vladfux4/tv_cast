@@ -51,8 +51,8 @@ class Packet {
   /**
    * @brief HTTP Body type
    */
-  typedef std::vector<uint8_t> Body;
-  typedef boost::movelib::unique_ptr<Body> BodyPtr;
+  typedef std::vector<uint8_t> Buffer;
+  typedef boost::movelib::unique_ptr<Buffer> BufferPtr;
   static const uint32_t MAX_BODY_LENGTH
       = std::numeric_limits<uint16_t>::max();
 
@@ -102,6 +102,13 @@ class Packet {
             const Type type);
 
   /**
+   * @brief Set Url
+   *
+   * @param url URL string
+   */
+  void SetUrl(const std::string& url);
+
+  /**
    * @brief Add new header field
    *
    * @param key Field name
@@ -122,16 +129,33 @@ class Packet {
    *
    * @param body Pointer on buffer
    */
-  void AssignBody(BodyPtr body);
+  void AssignBody(BufferPtr body);
 
- private:
+  /**
+   * @brief Serialize packet
+   *
+   * @return buffer
+   */
+  net::Session::BufferPtr Serialize() const;
+
+  private:
+  /**
+   * @brief Get HTTP Status name
+   *
+   * @param status HTTP Status
+   *
+   * @return string
+   */
+  const char* GetStatusName(http_status status) const;
+
   uint16_t http_major_;
   uint16_t http_minor_;
   Status status_;
   Method method_;
   Type type_;
+  std::string url_;
   std::map<std::string, std::string> header_fields_;
-  BodyPtr body_;
+  BufferPtr body_;
 };
 
 }  // namespace http

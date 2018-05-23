@@ -24,6 +24,12 @@ class Session : public boost::enable_shared_from_this<Session> {
   };
 
   /**
+   * @brief Byte buffer type
+   */
+  typedef std::vector<uint8_t> Buffer;
+  typedef boost::shared_ptr<Buffer> BufferPtr;
+
+  /**
    * @brief Constructor
    *
    * @param accessor Session accessor
@@ -44,7 +50,7 @@ class Session : public boost::enable_shared_from_this<Session> {
   /**
    * @brief Start async write operation
    */
-  virtual void Write(const boost::asio::const_buffer& buffer) = 0;
+  virtual void Write(BufferPtr buffer) = 0;
 
   /**
    * @brief Close session

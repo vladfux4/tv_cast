@@ -146,7 +146,7 @@ class Parser {
   http_parser_settings setting_;
   boost::movelib::unique_ptr<http_parser> parser_;
   std::string current_field_;
-  Packet::BodyPtr body_;
+  Packet::BufferPtr body_;
   uint32_t body_index_;
   uint32_t content_length_;
 };

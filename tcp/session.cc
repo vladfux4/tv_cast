@@ -26,12 +26,12 @@ void Session::Read() {
                   boost::asio::placeholders::bytes_transferred));
 }
 
-void Session::Write(const boost::asio::const_buffer& buffer) {
+void Session::Write(BufferPtr buffer) {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
     boost::asio::async_write(socket_,
-        buffer, boost::bind(&Session::HandleWrite, this,
-                    boost::asio::placeholders::error));
+        boost::asio::buffer(*buffer), boost::bind(&Session::HandleWrite, this,
+                    boost::asio::placeholders::error, buffer));
 }
 
 void Session::Close() {
@@ -56,7 +56,10 @@ void Session::HandleRead(const boost::system::error_code& error,
   }
 }
 
-void Session::HandleWrite(const boost::system::error_code& error) {
+void Session::HandleWrite(const boost::system::error_code& error,
+                          net::Session::BufferPtr buffer) {
+  IGNORE(buffer);
+
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
   if (error) {

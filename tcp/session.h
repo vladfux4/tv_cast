@@ -36,7 +36,7 @@ class Session : public net::Session {
   /**
    * @brief Start async write operation
    */
-  virtual void Write(const boost::asio::const_buffer& buffer) override;
+  virtual void Write(BufferPtr buffer) override;
 
   /**
    * @brief Close session
@@ -57,7 +57,8 @@ class Session : public net::Session {
    *
    * @param error Error code
    */
-  void HandleWrite(const boost::system::error_code& error);
+  void HandleWrite(const boost::system::error_code& error,
+                   net::Session::BufferPtr buffer);
 
   /**
    * @brief Get Socket

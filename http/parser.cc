@@ -101,7 +101,19 @@ int Parser::HandleMsgBegin(http_parser* c_parser) {
 
 int Parser::HandleUrl(http_parser* c_parser,
                       const char* at, size_t length) {
-  LOG(LogLevel::DEBUG) << "URL: " << std::string(at, length);
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  int retval = -1;
+
+  if (nullptr != at) {
+    std::string url(at, length);
+    LOG(LogLevel::DEBUG)
+        << "URL(" << url << ")";
+
+    packet_->SetUrl(url);
+    retval = 0;
+  }
+
+  return retval;
   return 0;
 }
 
@@ -191,7 +203,7 @@ int Parser::HandleBody(http_parser* c_parser,
       if ((0 < content_length_) && (Packet::MAX_BODY_LENGTH >= content_length_)) {
         LOG(LogLevel::DEBUG) << "Allocate http body buffer. Size:"
                              << content_length_;
-        body_.reset(new Packet::Body(content_length_));
+        body_.reset(new Packet::Buffer(content_length_));
       }
     }
 
@@ -250,7 +262,7 @@ const char* Parser::GetErrString(unsigned int error) {
   return str;
 }
 
-const char*Parser::GetStatusString(unsigned int status) {
+const char* Parser::GetStatusString(unsigned int status) {
   const char* str = "INVALID_STATUS";
 
 #define XX(num, name, string) case HTTP_STATUS_##name: { str=#string; break; }

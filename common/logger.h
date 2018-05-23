@@ -84,4 +84,7 @@ inline std::string LOG::GetLabel(const LogLevel level) const {
   return label;
 }
 
+template <typename T>
+void IGNORE(T &&) {}
+
 #endif  // COMMONG_LOGGER_H
