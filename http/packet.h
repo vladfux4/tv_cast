@@ -61,14 +61,21 @@ class Packet {
    */
   class Observer {
    public:
-   /**
+    /**
      * @brief Handle HTTP Packet
      *
      * @param session Server session
      * @param packet Packet
      */
-    virtual void HandlePacket(net::Session& session,
+    virtual void HandlePacket(net::SessionPtr session,
                               const Packet& packet) = 0;
+
+    /**
+     * @brief Handle Close event
+     *
+     * @param session Pointer on session
+     */
+    virtual void HandleClose(net::SessionPtr session) = 0;
   };
 
   /**

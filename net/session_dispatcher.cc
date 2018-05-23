@@ -19,11 +19,17 @@ void SessionDispatcher::RegisterHandler(net::PacketHandler& handler) {
 }
 
 net::PacketHandler::Status SessionDispatcher::Handle(
-    net::Session& session,
+    net::SessionPtr session,
     const boost::asio::const_buffer& buffer) {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
   return packet_handler_->Handle(session, buffer);
+}
+
+void SessionDispatcher::HandleClose(SessionPtr session) {
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+
+  return packet_handler_->HandleClose(session);
 }
 
 void SessionDispatcher::CloseSession(const SessionAccessor& accessor) {

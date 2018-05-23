@@ -14,11 +14,6 @@ namespace tcp {
 class Server : public net::SessionDispatcher {
  public:
   /**
-   * @brief Session pointer
-   */
-  typedef boost::shared_ptr<tcp::Session> SessionPtr;
-
-  /**
    * @brief Constructor
    *
    * @param io_service ASIO IO Service

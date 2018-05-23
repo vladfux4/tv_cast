@@ -14,36 +14,35 @@ PacketHandler::~PacketHandler() {
 }
 
 net::PacketHandler::Status PacketHandler::Handle(
-    net::Session& session,
+    net::SessionPtr session,
     const boost::asio::const_buffer& buffer) {
-  Status status = Status::ERROR;
+  CreateHttpParser();
 
-  do {
-    if (0 == buffer.size()) {
-      DeleteHttpParser();
-      break;
+  Status status = current_http_parser_->Parse(buffer);
+
+  if (Status::PART_RECEIVED == status) {
+    LOG(LogLevel::DEBUG) << "Waiting for rest of package";
+  } else if (Status::OK == status) {
+    http::Parser::PacketPtr packet = current_http_parser_->GetPacket();
+    if (nullptr != observer_) {
+      observer_->HandlePacket(session, *packet);
     }
 
-    CreateHttpParser();
-
-    status = current_http_parser_->Parse(buffer);
-
-    if (Status::PART_RECEIVED == status) {
-      LOG(LogLevel::DEBUG) << "Waiting for rest of package";
-    } else if (Status::OK == status) {
-      http::Parser::PacketPtr packet = current_http_parser_->GetPacket();
-      if (nullptr != observer_) {
-        observer_->HandlePacket(session, *packet);
-      }
-
-      DeleteHttpParser();
-    } else if (Status::ERROR == status) {
-      DeleteHttpParser();
-      session.Close();
-    }
-  } while (false);
+    DeleteHttpParser();
+  } else if (Status::ERROR == status) {
+    DeleteHttpParser();
+    session->Close();
+  }
 
   return status;
+}
+
+void PacketHandler::HandleClose(net::SessionPtr session) {
+  if (nullptr != observer_) {
+    observer_->HandleClose(session);
+  }
+
+  DeleteHttpParser();
 }
 
 void PacketHandler::RegisterObserver(Packet::Observer& observer) {

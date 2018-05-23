@@ -16,8 +16,10 @@ class PacketHandler : public net::PacketHandler {
    */
   virtual ~PacketHandler();
 
-  virtual Status Handle(net::Session& session,
+  virtual Status Handle(net::SessionPtr session,
       const boost::asio::const_buffer& buffer) override;
+
+  virtual void HandleClose(net::SessionPtr session) override;
 
   /**
    * @brief Register HTTP Observer

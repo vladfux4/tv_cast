@@ -18,8 +18,15 @@ class Logic : public http::Packet::Observer {
    * @param session Server session
    * @param packet Packet
    */
-  virtual void HandlePacket(net::Session& session,
+  virtual void HandlePacket(net::SessionPtr session,
                             const http::Packet& packet) override;
+
+  /**
+   * @brief Handle Close event
+   *
+   * @param session Pointer on session
+   */
+  virtual void HandleClose(net::SessionPtr session) override;
 };
 
 }  // namespace logic

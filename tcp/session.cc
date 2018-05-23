@@ -10,6 +10,7 @@ Session::Session(const net::SessionAccessor& accessor,
                  boost::asio::io_service& io_service)
     : net::Session(accessor), socket_(io_service) {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  state_ = net::Session::State::RUN;
 }
 
 Session::~Session() {
@@ -45,16 +46,11 @@ void Session::HandleRead(const boost::system::error_code& error,
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
   if (!error) {
-    accessor_.dispatcher.Handle(*this,
+    accessor_.dispatcher.Handle(shared_from_this(),
         boost::asio::buffer(buffer_.data(), bytes_transferred));
     Read();
   } else {
     LOG(LogLevel::DEBUG) << error.message();
-
-    if (boost::asio::error::eof == error) {
-      accessor_.dispatcher.Handle(*this,
-          boost::asio::buffer(buffer_.data(), 0));
-    }
 
     Destroy();
   }
@@ -70,6 +66,8 @@ void Session::HandleWrite(const boost::system::error_code& error) {
 }
 
 void Session::Destroy() {
+  state_ = net::Session::State::CLOSED;
+  accessor_.dispatcher.HandleClose(shared_from_this());
   accessor_.dispatcher.CloseSession(accessor_);
 }
 

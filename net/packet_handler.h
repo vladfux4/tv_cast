@@ -28,13 +28,20 @@ class PacketHandler {
   /**
    * @brief Handle packet
    *
-   * @param session Reference on session
+   * @param session Pointer on session
    * @param buffer Buffer
    *
    * @return handle status
    */
-  virtual Status Handle(Session& session,
+  virtual Status Handle(SessionPtr session,
                         const boost::asio::const_buffer& buffer) = 0;
+
+  /**
+   * @brief Handle Close event
+   *
+   * @param session Pointer on session
+   */
+  virtual void HandleClose(SessionPtr session) = 0;
 };
 
 } // namespace net

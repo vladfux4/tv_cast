@@ -81,6 +81,11 @@ inline boost::asio::ip::tcp::socket& Session::GetSocket() {
   return socket_;
 }
 
+/**
+ * @brief Session pointer
+ */
+typedef boost::shared_ptr<tcp::Session> SessionPtr;
+
 } // namespace net
 
 #endif  // TCP_SESSION_H

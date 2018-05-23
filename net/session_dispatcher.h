@@ -13,11 +13,6 @@ namespace net {
 class SessionDispatcher : public net::PacketHandler {
  public:
   /**
-   * @brief Session pointer
-   */
-  typedef boost::shared_ptr<Session> SessionPtr;
-
-  /**
    * @brief Constructor
    */
   SessionDispatcher();
@@ -34,16 +29,10 @@ class SessionDispatcher : public net::PacketHandler {
    */
   void RegisterHandler(net::PacketHandler& handler);
 
-  /**
-   * @brief Handle packet
-   *
-   * @param session Reference on session
-   * @param buffer Buffer
-   *
-   * @return handle status
-   */
-  virtual Status Handle(net::Session& session,
+  virtual Status Handle(net::SessionPtr session,
       const boost::asio::const_buffer& buffer) override;
+
+  virtual void HandleClose(net::SessionPtr session) override;
 
   /**
    * @brief Close Session

@@ -1,6 +1,8 @@
 #ifndef NET_SESSION_H
 #define NET_SESSION_H
 
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/asio/buffer.hpp>
 
 #include "net/session_accessor.h"
@@ -10,15 +12,24 @@ namespace net {
 /**
  * @brief The Session class
  */
-class Session {
+class Session : public boost::enable_shared_from_this<Session> {
  public:
+  /**
+   * @brief The Session state enum
+   */
+  enum class State {
+    INIT,
+    RUN,
+    CLOSED
+  };
+
   /**
    * @brief Constructor
    *
    * @param accessor Session accessor
    */
   Session(const net::SessionAccessor& accessor)
-    : accessor_(accessor) {}
+    : accessor_(accessor), state_(State::INIT) {}
 
   /**
    * @brief Destructor
@@ -41,19 +52,36 @@ class Session {
   virtual void Close() = 0;
 
   /**
-   * @brief Get Server Accessor
+   * @brief Get Session accessor
    *
-   * @return Server Accessor
+   * @return Session accessor
    */
   inline const net::SessionAccessor& GetAccessor() const;
 
+  /**
+   * @brief Get Session state
+   *
+   * @return state
+   */
+  inline const State& GetState() const;
+
  protected:
   net::SessionAccessor accessor_;
+  State state_;
 };
 
 inline const net::SessionAccessor& Session::GetAccessor() const {
   return accessor_;
 }
+
+inline const Session::State& Session::GetState() const {
+  return state_;
+}
+
+/**
+ * @brief Session pointer
+ */
+typedef boost::shared_ptr<Session> SessionPtr;
 
 } // namespace net
 
