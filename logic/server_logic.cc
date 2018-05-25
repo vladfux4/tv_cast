@@ -40,6 +40,11 @@ void ServerLogic::HandlePacket(net::SessionPtr session,
   }
 }
 
+void ServerLogic::HandleWriteComplete(net::SessionPtr session) {
+  LOG(LogLevel::INFO) << __PRETTY_FUNCTION__;
+  session->Close();
+}
+
 void ServerLogic::HandleClose(net::SessionPtr session) {
   LOG(LogLevel::INFO) << __PRETTY_FUNCTION__;
 }

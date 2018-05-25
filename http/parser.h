@@ -9,7 +9,7 @@
 
 #include "extra/http_parser.h"
 #include "http/packet.h"
-#include "net/packet_handler.h"
+#include "net/session_handler.h"
 
 namespace http {
 
@@ -48,14 +48,14 @@ class Parser {
    *
    * @return status
    */
-  net::PacketHandler::Status Parse(const boost::asio::const_buffer& buffer);
+  net::SessionHandler::Status Parse(const boost::asio::const_buffer& buffer);
 
   /**
    * @brief Get parse status
    *
    * @return status
    */
-  inline net::PacketHandler::Status GetStatus() const;
+  inline net::SessionHandler::Status GetStatus() const;
 
   /**
    * @brief Get Packet
@@ -141,7 +141,7 @@ class Parser {
   static int SHandleData(cpp_http_data_cb func,
                          http_parser* c_parser, const char* at, size_t length);
 
-  net::PacketHandler::Status status_;
+  net::SessionHandler::Status status_;
   PacketPtr packet_;
   http_parser_settings setting_;
   boost::movelib::unique_ptr<http_parser> parser_;
@@ -151,7 +151,7 @@ class Parser {
   uint32_t content_length_;
 };
 
-inline net::PacketHandler::Status Parser::GetStatus() const {
+inline net::SessionHandler::Status Parser::GetStatus() const {
   return status_;
 }
 

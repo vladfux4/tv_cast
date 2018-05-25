@@ -1,22 +1,22 @@
 #include "common/logger.h"
 
-#include "http/packet_handler.h"
+#include "http/session_handler.h"
 
 namespace http {
 
-PacketHandler::PacketHandler()
+SessionHandler::SessionHandler()
   : observer_(nullptr),
     current_http_parser_(nullptr) {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 }
 
-PacketHandler::~PacketHandler() {
+SessionHandler::~SessionHandler() {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
   DeleteHttpParser();
 }
 
-net::PacketHandler::Status PacketHandler::Handle(
+net::SessionHandler::Status SessionHandler::HandleData(
     net::SessionPtr session,
     const boost::asio::const_buffer& buffer) {
   CreateHttpParser();
@@ -40,7 +40,13 @@ net::PacketHandler::Status PacketHandler::Handle(
   return status;
 }
 
-void PacketHandler::HandleClose(net::SessionPtr session) {
+void SessionHandler::HandleWriteComplete(net::SessionPtr session) {
+  if (nullptr != observer_) {
+    observer_->HandleWriteComplete(session);
+  }
+}
+
+void SessionHandler::HandleClose(net::SessionPtr session) {
   if (nullptr != observer_) {
     observer_->HandleClose(session);
   }
@@ -48,38 +54,38 @@ void PacketHandler::HandleClose(net::SessionPtr session) {
   DeleteHttpParser();
 }
 
-void PacketHandler::RegisterObserver(Packet::Observer& observer) {
+void SessionHandler::RegisterObserver(Packet::Observer& observer) {
   observer_ = &observer;
 }
 
-void PacketHandler::CreateHttpParser() {
+void SessionHandler::CreateHttpParser() {
   if (nullptr == current_http_parser_) {
     current_http_parser_ = new http::Parser();
   }
 }
 
-void PacketHandler::DeleteHttpParser() {
+void SessionHandler::DeleteHttpParser() {
   if (nullptr != current_http_parser_) {
     delete current_http_parser_;
     current_http_parser_ = nullptr;
   }
 }
 
-PacketHandlerCreator::PacketHandlerCreator(Packet::Observer& observer)
+SessionHandlerCreator::SessionHandlerCreator(Packet::Observer& observer)
   : observer_(observer) {
 }
 
-PacketHandlerCreator::~PacketHandlerCreator() {
+SessionHandlerCreator::~SessionHandlerCreator() {
 }
 
-net::PacketHandler* PacketHandlerCreator::Create() {
-  PacketHandler* handler = new http::PacketHandler();
+net::SessionHandler* SessionHandlerCreator::Create() {
+  SessionHandler* handler = new http::SessionHandler();
   handler->RegisterObserver(observer_);
 
   return handler;
 }
 
-void PacketHandlerCreator::Delete(net::PacketHandler* handler) {
+void SessionHandlerCreator::Delete(net::SessionHandler* handler) {
   delete handler;
 }
 

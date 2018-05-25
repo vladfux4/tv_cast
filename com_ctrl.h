@@ -3,7 +3,7 @@
 
 #include "tcp/server.h"
 #include "tcp/client.h"
-#include "http/packet_handler.h"
+#include "http/session_handler.h"
 
 class CommunicationController {
  public:
@@ -31,6 +31,6 @@ class CommunicationController {
   boost::asio::io_service io_service_;
   tcp::Server tcp_server_;
   tcp::Client tcp_client_;
-  boost::movelib::unique_ptr<http::PacketHandlerCreator> http_handler_creator_;
-  boost::movelib::unique_ptr<http::PacketHandlerCreator> http_client_handler_creator_;
+  boost::movelib::unique_ptr<http::SessionHandlerCreator> http_handler_creator_;
+  boost::movelib::unique_ptr<http::SessionHandlerCreator> http_client_handler_creator_;
 };

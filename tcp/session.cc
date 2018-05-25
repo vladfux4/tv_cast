@@ -46,7 +46,7 @@ void Session::HandleRead(const boost::system::error_code& error,
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
   if (!error) {
-    accessor_.handler.Handle(shared_from_this(),
+    accessor_.handler.HandleData(shared_from_this(),
         boost::asio::buffer(buffer_.data(), bytes_transferred));
     Read();
   } else {
@@ -61,7 +61,9 @@ void Session::HandleWrite(const boost::system::error_code& error,
 
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
-  if (error) {
+  if (!error) {
+    accessor_.handler.HandleWriteComplete(shared_from_this());
+  } else {
     LOG(LogLevel::DEBUG) << error.message();
     Destroy();
   }

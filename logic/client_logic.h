@@ -17,20 +17,9 @@ class ClientLogic : public http::Packet::Observer {
   //test function
   void SendGetRequest();
 
-  /**
-   * @brief Handle HTTP Packet
-   *
-   * @param session Server session
-   * @param packet Packet
-   */
   virtual void HandlePacket(net::SessionPtr session,
                             const http::Packet& packet) override;
-
-  /**
-   * @brief Handle Close event
-   *
-   * @param session Pointer on session
-   */
+  virtual void HandleWriteComplete(net::SessionPtr session) override;
   virtual void HandleClose(net::SessionPtr session) override;
 
  private:

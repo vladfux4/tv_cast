@@ -14,7 +14,7 @@ SessionDispatcher::~SessionDispatcher() {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 }
 
-void SessionDispatcher::RegisterCreator(PacketHandlerCreator& creator) {
+void SessionDispatcher::RegisterCreator(SessionHandlerCreator& creator) {
   creator_ = &creator;
 }
 
@@ -45,7 +45,7 @@ SessionDispatcher::SessionAccessorPtr SessionDispatcher::GetNewSessionAccessor()
       break;
     }
 
-    net::PacketHandler* handler = creator_->Create();
+    net::SessionHandler* handler = creator_->Create();
     if (nullptr == handler) {
       break;
     }

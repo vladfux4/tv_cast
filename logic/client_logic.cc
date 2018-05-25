@@ -53,6 +53,10 @@ void ClientLogic::HandlePacket(net::SessionPtr session,
   }
 }
 
+void ClientLogic::HandleWriteComplete(net::SessionPtr session) {
+  LOG(LogLevel::INFO) << __PRETTY_FUNCTION__;
+}
+
 void ClientLogic::HandleClose(net::SessionPtr session) {
   LOG(LogLevel::INFO) << __PRETTY_FUNCTION__;
 }

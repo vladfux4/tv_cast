@@ -4,7 +4,7 @@
 namespace http {
 
 Parser::Parser()
-    : status_(net::PacketHandler::Status::ERROR),
+    : status_(net::SessionHandler::Status::ERROR),
       packet_(new Packet()),
       setting_(),
       parser_(new http_parser()),
@@ -34,9 +34,9 @@ Parser::~Parser() {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 }
 
-net::PacketHandler::Status Parser::Parse(
+net::SessionHandler::Status Parser::Parse(
     const boost::asio::const_buffer& buffer) {
-  status_ = net::PacketHandler::Status::PART_RECEIVED;
+  status_ = net::SessionHandler::Status::PART_RECEIVED;
 
   int nparsed = http_parser_execute(
       parser_.get(), &setting_,
@@ -47,7 +47,7 @@ net::PacketHandler::Status Parser::Parse(
     LOG(LogLevel::WARN) << "Parsing error code:"
                         << nparsed << " msg: "
                         << GetErrString(parser_->http_errno);
-    status_ = net::PacketHandler::Status::ERROR;
+    status_ = net::SessionHandler::Status::ERROR;
   }
 
   return status_;
@@ -237,7 +237,7 @@ int Parser::HandleMsgComplete(http_parser* c_parser) {
     packet_->AssignBody(boost::move(body_));
   }
 
-  status_ = net::PacketHandler::Status::OK;
+  status_ = net::SessionHandler::Status::OK;
 
   return 0;
 }
@@ -245,7 +245,7 @@ int Parser::HandleMsgComplete(http_parser* c_parser) {
 int Parser::HandleHeaderChunk(http_parser* c_parser) {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
-  status_ = net::PacketHandler::Status::PART_RECEIVED;
+  status_ = net::SessionHandler::Status::PART_RECEIVED;
 
   return 0;
 }

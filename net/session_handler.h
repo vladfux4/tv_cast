@@ -1,5 +1,5 @@
-#ifndef NET_PACKET_HANDLER_H
-#define NET_PACKET_HANDLER_H
+#ifndef NET_SESSION_HANDLER_H
+#define NET_SESSION_HANDLER_H
 
 #include <boost/asio/buffer.hpp>
 #include "net/session.h"
@@ -7,9 +7,9 @@
 namespace net {
 
 /**
- * @brief The PacketHandler Interface class
+ * @brief The SessionHandler Interface class
  */
-class PacketHandler {
+class SessionHandler {
  public:
   /**
    * @brief The handle status enum
@@ -23,7 +23,7 @@ class PacketHandler {
   /**
    * @brief Destructor
    */
-  virtual ~PacketHandler() {}
+  virtual ~SessionHandler() {}
 
   /**
    * @brief Handle packet
@@ -33,8 +33,15 @@ class PacketHandler {
    *
    * @return handle status
    */
-  virtual Status Handle(SessionPtr session,
+  virtual Status HandleData(SessionPtr session,
                         const boost::asio::const_buffer& buffer) = 0;
+
+  /**
+   * @brief Handle Close event
+   *
+   * @param session Pointer on session
+   */
+  virtual void HandleWriteComplete(SessionPtr session) = 0;
 
   /**
    * @brief Handle Close event
@@ -47,28 +54,28 @@ class PacketHandler {
 /**
  * @brief The Packet Handler Creator class
  */
-class PacketHandlerCreator {
+class SessionHandlerCreator {
  public:
   /**
    * @brief Create new packet handler
    *
    * @return pointer on handler
    */
-  virtual PacketHandler* Create() = 0;
+  virtual SessionHandler* Create() = 0;
 
   /**
    * @brief Delete packet handler
    *
    * @param pointer on handler
    */
-  virtual void Delete(PacketHandler* handler) = 0;
+  virtual void Delete(SessionHandler* handler) = 0;
 
   /**
    * @brief Destructor
    */
-  virtual ~PacketHandlerCreator() {}
+  virtual ~SessionHandlerCreator() {}
 };
 
 } // namespace net
 
-#endif  // NET_PACKET_HANDLER_H
+#endif  // NET_SESSION_HANDLER_H

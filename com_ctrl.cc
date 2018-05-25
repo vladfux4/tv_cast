@@ -20,7 +20,7 @@ void CommunicationController::RegisterHttpServerObserver(
     http::Packet::Observer& observer) {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
-  http_handler_creator_.reset(new http::PacketHandlerCreator(observer));
+  http_handler_creator_.reset(new http::SessionHandlerCreator(observer));
   tcp_server_.RegisterCreator(*http_handler_creator_);
 }
 
@@ -28,7 +28,7 @@ void CommunicationController::RegisterHttpClientObserver(
     http::Packet::Observer& observer) {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
-  http_client_handler_creator_.reset(new http::PacketHandlerCreator(observer));
+  http_client_handler_creator_.reset(new http::SessionHandlerCreator(observer));
   tcp_client_.RegisterCreator(*http_client_handler_creator_);
 }
 

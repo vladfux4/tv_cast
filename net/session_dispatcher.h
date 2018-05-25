@@ -5,7 +5,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/move/unique_ptr.hpp>
 
-#include "net/packet_handler.h"
+#include "net/session_handler.h"
 #include "net/session.h"
 #include "net/session_accessor.h"
 
@@ -28,7 +28,7 @@ class SessionDispatcher {
    *
    * @param creator Reference on creator
    */
-  void RegisterCreator(net::PacketHandlerCreator& creator);
+  void RegisterCreator(net::SessionHandlerCreator& creator);
 
   /**
    * @brief Close Session
@@ -55,7 +55,7 @@ class SessionDispatcher {
    */
   void AddSession(SessionPtr session);
 
-  net::PacketHandlerCreator* creator_;
+  net::SessionHandlerCreator* creator_;
  private:
   /**
    * @brief Session pool type

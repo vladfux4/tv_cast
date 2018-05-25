@@ -1,29 +1,28 @@
-#ifndef HTTP_PACKET_HANDLER_H
-#define HTTP_PACKET_HANDLER_H
+#ifndef HTTP_SESSION_HANDLER_H
+#define HTTP_SESSION_HANDLER_H
 
-#include "net/packet_handler.h"
+#include "net/session_handler.h"
 #include "http/packet.h"
 #include "http/parser.h"
 
 namespace http {
 
-class PacketHandler : public net::PacketHandler {
+class SessionHandler : public net::SessionHandler {
  public:
   /**
    * @brief Constructor
    */
-  PacketHandler();
+  SessionHandler();
 
   /**
    * @brief Destructor
    */
-  virtual ~PacketHandler();
+  virtual ~SessionHandler();
 
-  ///net::PacketHandler interface
-  virtual Status Handle(net::SessionPtr session,
+  ///net::SessionHandler interface
+  virtual Status HandleData(net::SessionPtr session,
       const boost::asio::const_buffer& buffer) override;
-
-  ///net::PacketHandler interface
+  virtual void HandleWriteComplete(net::SessionPtr session) override;
   virtual void HandleClose(net::SessionPtr session) override;
 
   /**
@@ -51,33 +50,33 @@ class PacketHandler : public net::PacketHandler {
 /**
  * @brief The Packet Handler Creator class
  */
-class PacketHandlerCreator : public net::PacketHandlerCreator {
+class SessionHandlerCreator : public net::SessionHandlerCreator {
  public:
  /**
    * @brief Constructor
    *
    * @param observer Reference HTTP Packet observer
    */
-  PacketHandlerCreator(http::Packet::Observer& observer);
+  SessionHandlerCreator(http::Packet::Observer& observer);
 
   /**
    * @brief Destructor
    */
-  virtual ~PacketHandlerCreator();
+  virtual ~SessionHandlerCreator();
 
   /**
    * @brief Create new packet handler
    *
    * @return pointer on handler
    */
-  virtual net::PacketHandler* Create() override;
+  virtual net::SessionHandler* Create() override;
 
   /**
    * @brief Delete packet handler
    *
    * @param pointer on handler
    */
-  virtual void Delete(net::PacketHandler* handler) override;
+  virtual void Delete(net::SessionHandler* handler) override;
 
  private:
   http::Packet::Observer& observer_;
@@ -85,4 +84,4 @@ class PacketHandlerCreator : public net::PacketHandlerCreator {
 
 }  // namespace http
 
-#endif  // HTTP_PACKET_HANDLER_H
+#endif  // HTTP_SESSION_HANDLER_H

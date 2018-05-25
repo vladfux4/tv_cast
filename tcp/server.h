@@ -5,7 +5,7 @@
 #include <boost/asio.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "net/packet_handler.h"
+#include "net/session_handler.h"
 #include "net/session_dispatcher.h"
 #include "tcp/session.h"
 

@@ -6,7 +6,7 @@
 namespace net {
 
 class SessionDispatcher;
-class PacketHandler;
+class SessionHandler;
 
 /**
  * @brief The Session Accessor struct
@@ -20,12 +20,12 @@ struct SessionAccessor {
    * @param kId Dispatcher internal id
    */
   SessionAccessor(SessionDispatcher& dispatcher,
-                  PacketHandler& handler,
+                  SessionHandler& handler,
                  const uint32_t kId)
       : dispatcher(dispatcher), handler(handler), kId(kId) {}
 
   SessionDispatcher& dispatcher;
-  PacketHandler& handler;
+  SessionHandler& handler;
   const uint32_t kId;
 };
 

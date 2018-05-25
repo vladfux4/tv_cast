@@ -69,6 +69,12 @@ class Packet {
      */
     virtual void HandlePacket(net::SessionPtr session,
                               const Packet& packet) = 0;
+    /**
+     * @brief Handle Write operation is complete
+     *
+     * @param session Pointer on session
+     */
+    virtual void HandleWriteComplete(net::SessionPtr session) = 0;
 
     /**
      * @brief Handle Close event
