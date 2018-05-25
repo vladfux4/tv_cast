@@ -4,18 +4,18 @@
 namespace logic {
 
 ServerLogic::ServerLogic() {
-  LOG(LogLevel::INFO) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 
 void ServerLogic::HandlePacket(net::SessionPtr session,
                          const http::Packet& packet) {
-  LOG(LogLevel::INFO) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 
   net::Session::BufferPtr buffer = packet.Serialize();
 
   if (nullptr != buffer) {
-    LOG(LogLevel::INFO) << "HTTP PACKET";
-    LOG(LogLevel::INFO)
+    DLOG(INFO) << "HTTP PACKET";
+    VLOG(2)
         << std::string(reinterpret_cast<char*>(&buffer->at(0)),
                        buffer->size());
   }
@@ -31,8 +31,8 @@ void ServerLogic::HandlePacket(net::SessionPtr session,
 
   net::Session::BufferPtr new_buffer = new_packet.Serialize();
   if (nullptr != new_buffer) {
-    LOG(LogLevel::INFO) << "NEW HTTP PACKET";
-    LOG(LogLevel::INFO)
+    DLOG(INFO) << "NEW HTTP PACKET";
+    VLOG(2)
         << std::string(reinterpret_cast<char*>(&new_buffer->at(0)),
                        new_buffer->size());
 
@@ -41,12 +41,12 @@ void ServerLogic::HandlePacket(net::SessionPtr session,
 }
 
 void ServerLogic::HandleWriteComplete(net::SessionPtr session) {
-  LOG(LogLevel::INFO) << __PRETTY_FUNCTION__;
-  session->Close();
+  DLOG(INFO) << __PRETTY_FUNCTION__;
+//  session->Close();
 }
 
 void ServerLogic::HandleClose(net::SessionPtr session) {
-  LOG(LogLevel::INFO) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 
 }  // namespace logic

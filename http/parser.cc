@@ -12,7 +12,7 @@ Parser::Parser()
       body_(nullptr),
       body_index_(0),
       content_length_(0) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 
   memset(&setting_, 0, sizeof(setting_));
 
@@ -31,7 +31,7 @@ Parser::Parser()
 }
 
 Parser::~Parser() {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 
 net::SessionHandler::Status Parser::Parse(
@@ -43,8 +43,8 @@ net::SessionHandler::Status Parser::Parse(
       reinterpret_cast<const char*>(buffer.data()), buffer.size());
 
   if (buffer.size() != nparsed) { //error
-    LOG(LogLevel::WARN) << "Size: " << buffer.size();
-    LOG(LogLevel::WARN) << "Parsing error code:"
+    LOG(ERROR) << "Size: " << buffer.size();
+    LOG(ERROR) << "Parsing error code:"
                         << nparsed << " msg: "
                         << GetErrString(parser_->http_errno);
     status_ = net::SessionHandler::Status::ERROR;
@@ -95,18 +95,18 @@ int Parser::SHandleHeaderChunk(http_parser* c_parser) {
 }
 
 int Parser::HandleMsgBegin(http_parser* c_parser) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  VLOG(2) << __PRETTY_FUNCTION__;
   return 0;
 }
 
 int Parser::HandleUrl(http_parser* c_parser,
                       const char* at, size_t length) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  VLOG(2) << __PRETTY_FUNCTION__;
   int retval = -1;
 
   if (nullptr != at) {
     std::string url(at, length);
-    LOG(LogLevel::DEBUG)
+    VLOG(1)
         << "URL(" << url << ")";
 
     packet_->SetUrl(url);
@@ -119,18 +119,18 @@ int Parser::HandleUrl(http_parser* c_parser,
 
 int Parser::HandleStatus(http_parser* c_parser,
                          const char* at, size_t length) {
-  LOG(LogLevel::DEBUG) << "Status: " << std::string(at, length);
+  VLOG(1) << "Status: " << std::string(at, length);
   return 0;
 }
 
 int Parser::HandleHeaderField(http_parser* c_parser,
                               const char* at, size_t length) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  VLOG(2) << __PRETTY_FUNCTION__;
   int retval = -1;
 
   if (nullptr != at) {
     current_field_ = std::string(at, length);
-    LOG(LogLevel::DEBUG) << "Field: " << current_field_;
+    VLOG(2) << "Field: " << current_field_;
     retval = 0;
   }
 
@@ -139,14 +139,14 @@ int Parser::HandleHeaderField(http_parser* c_parser,
 
 int Parser::HandleHeaderValue(http_parser* c_parser,
                               const char* at, size_t length) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  VLOG(2) << __PRETTY_FUNCTION__;
 
   int retval = -1;
   if (nullptr != at) {
     std::string value(at, length);
-    LOG(LogLevel::DEBUG) << "Value: " << value;
+    VLOG(2) << "Value: " << value;
 
-    LOG(LogLevel::INFO)
+    VLOG(1)
         << "Header field. {Key:(" << current_field_ << ") "
            "Value:(" << value << ")";
 
@@ -158,11 +158,11 @@ int Parser::HandleHeaderValue(http_parser* c_parser,
 }
 
 int Parser::HandleHeaderComplete(http_parser* c_parser) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  VLOG(2) << __PRETTY_FUNCTION__;
 
   int retval = -1;
   if (nullptr != c_parser) {
-    LOG(LogLevel::INFO)
+    VLOG(1)
         << "HTTP(" << c_parser->http_major
         << "." << c_parser->http_minor << ") "
         << "status(" << c_parser->status_code << " "
@@ -176,7 +176,7 @@ int Parser::HandleHeaderComplete(http_parser* c_parser) {
         ((0 == c_parser->status_code) ?
             Packet::Type::REQUEST : Packet::Type::REQUEST));
 
-    LOG(LogLevel::INFO) << "Content length:" << c_parser->content_length;
+    VLOG(1) << "Content length:" << c_parser->content_length;
     content_length_ = c_parser->content_length;
 
     retval = 0;
@@ -187,7 +187,7 @@ int Parser::HandleHeaderComplete(http_parser* c_parser) {
 
 int Parser::HandleBody(http_parser* c_parser,
                        const char* at, size_t length) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__ << "(" << length << ")";
+  VLOG(2) << __PRETTY_FUNCTION__ << "(" << length << ")";
 
   int retval = -1;
   do {
@@ -201,7 +201,7 @@ int Parser::HandleBody(http_parser* c_parser,
 
     if (nullptr == body_) {
       if ((0 < content_length_) && (Packet::MAX_BODY_LENGTH >= content_length_)) {
-        LOG(LogLevel::DEBUG) << "Allocate http body buffer. Size:"
+        VLOG(1) << "Allocate http body buffer. Size:"
                              << content_length_;
         body_.reset(new Packet::Buffer(content_length_));
       }
@@ -212,7 +212,7 @@ int Parser::HandleBody(http_parser* c_parser,
     }
 
     if ((0 < length) && ((content_length_ - body_index_) >= length)) {
-      LOG(LogLevel::DEBUG)
+      VLOG(1)
           << "Copy http body data at index(" << body_index_ << ") "
           << "length(" << length << ")";
 
@@ -229,10 +229,10 @@ int Parser::HandleBody(http_parser* c_parser,
 }
 
 int Parser::HandleMsgComplete(http_parser* c_parser) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  VLOG(1) << __PRETTY_FUNCTION__;
 
   if (nullptr != body_) {
-    LOG(LogLevel::DEBUG) << "HTTP Body: "
+    VLOG(3) << "HTTP Body: "
         << std::string(reinterpret_cast<char*>(&body_->at(0)), body_->size());
     packet_->AssignBody(boost::move(body_));
   }
@@ -243,7 +243,7 @@ int Parser::HandleMsgComplete(http_parser* c_parser) {
 }
 
 int Parser::HandleHeaderChunk(http_parser* c_parser) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  VLOG(1) << __PRETTY_FUNCTION__;
 
   status_ = net::SessionHandler::Status::PART_RECEIVED;
 

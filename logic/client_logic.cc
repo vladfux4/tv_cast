@@ -7,11 +7,11 @@ namespace logic {
 
 ClientLogic::ClientLogic(CommunicationController& com_ctrl)
     : com_ctrl_(com_ctrl) {
-  LOG(LogLevel::INFO) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 
 void ClientLogic::SendGetRequest() {
-  LOG(LogLevel::INFO) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 
   tcp::SessionPtr session = com_ctrl_.CreateHttpClientSession(
       boost::asio::ip::tcp::endpoint(
@@ -26,8 +26,8 @@ void ClientLogic::SendGetRequest() {
 
     net::Session::BufferPtr new_buffer = packet.Serialize();
     if (nullptr != new_buffer) {
-      LOG(LogLevel::INFO) << "REQUEST NEW HTTP PACKET";
-      LOG(LogLevel::INFO)
+      DLOG(INFO) << "REQUEST NEW HTTP PACKET";
+      VLOG(2)
           << std::string(reinterpret_cast<char*>(&new_buffer->at(0)),
                          new_buffer->size());
 
@@ -35,30 +35,30 @@ void ClientLogic::SendGetRequest() {
       session->Read();
     }
   } else {
-    LOG(LogLevel::INFO) << "SESSION NOT CREATED";
+    DLOG(WARNING) << "SESSION NOT CREATED";
   }
 }
 
 void ClientLogic::HandlePacket(net::SessionPtr session,
                          const http::Packet& packet) {
-  LOG(LogLevel::INFO) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 
   net::Session::BufferPtr buffer = packet.Serialize();
 
   if (nullptr != buffer) {
-    LOG(LogLevel::INFO) << "HTTP PACKET";
-    LOG(LogLevel::INFO)
+    DLOG(INFO) << "HTTP PACKET";
+    VLOG(2)
         << std::string(reinterpret_cast<char*>(&buffer->at(0)),
                        buffer->size());
   }
 }
 
 void ClientLogic::HandleWriteComplete(net::SessionPtr session) {
-  LOG(LogLevel::INFO) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 
 void ClientLogic::HandleClose(net::SessionPtr session) {
-  LOG(LogLevel::INFO) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 
 }  // namespace logic

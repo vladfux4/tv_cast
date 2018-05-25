@@ -7,11 +7,11 @@ namespace net {
 SessionDispatcher::SessionDispatcher()
     : creator_(nullptr),
       session_pool_() {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 
 SessionDispatcher::~SessionDispatcher() {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 
 void SessionDispatcher::RegisterCreator(SessionHandlerCreator& creator) {
@@ -24,7 +24,7 @@ void SessionDispatcher::CloseSession(const SessionAccessor& accessor) {
     Session& session = *(*it);
 
     if (session.GetAccessor().kId == accessor.kId) {
-      LOG(LogLevel::DEBUG) << "Close TCP session ID:"
+      DLOG(INFO) << "Close TCP session ID:"
                            << accessor.kId;
       if (nullptr != creator_) {
         creator_->Delete(&(session.GetAccessor().handler));

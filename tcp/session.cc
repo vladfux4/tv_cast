@@ -9,17 +9,15 @@ namespace tcp {
 Session::Session(const net::SessionAccessor& accessor,
                  boost::asio::io_service& io_service)
     : net::Session(accessor), socket_(io_service) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
   state_ = net::Session::State::RUN;
 }
 
 Session::~Session() {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 
 void Session::Read() {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
-
   socket_.async_read_some(boost::asio::buffer(buffer_),
       boost::bind(&Session::HandleRead, this,
           boost::asio::placeholders::error,
@@ -27,30 +25,27 @@ void Session::Read() {
 }
 
 void Session::Write(BufferPtr buffer) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
-
     boost::asio::async_write(socket_,
         boost::asio::buffer(*buffer), boost::bind(&Session::HandleWrite, this,
                     boost::asio::placeholders::error, buffer));
 }
 
 void Session::Close() {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
-
   socket_.cancel();
   socket_.close();
 }
 
 void Session::HandleRead(const boost::system::error_code& error,
                          size_t bytes_transferred) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__
+             << " (" << bytes_transferred << ")";
 
   if (!error) {
     accessor_.handler.HandleData(shared_from_this(),
         boost::asio::buffer(buffer_.data(), bytes_transferred));
     Read();
   } else {
-    LOG(LogLevel::DEBUG) << error.message();
+    LOG(WARNING) << error.message();
     Destroy();
   }
 }
@@ -58,13 +53,12 @@ void Session::HandleRead(const boost::system::error_code& error,
 void Session::HandleWrite(const boost::system::error_code& error,
                           net::Session::BufferPtr buffer) {
   IGNORE(buffer);
-
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 
   if (!error) {
     accessor_.handler.HandleWriteComplete(shared_from_this());
   } else {
-    LOG(LogLevel::DEBUG) << error.message();
+    LOG(WARNING) << error.message();
     Destroy();
   }
 }

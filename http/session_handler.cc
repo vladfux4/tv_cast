@@ -7,11 +7,11 @@ namespace http {
 SessionHandler::SessionHandler()
   : observer_(nullptr),
     current_http_parser_(nullptr) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 
 SessionHandler::~SessionHandler() {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 
   DeleteHttpParser();
 }
@@ -24,7 +24,7 @@ net::SessionHandler::Status SessionHandler::HandleData(
   Status status = current_http_parser_->Parse(buffer);
 
   if (Status::PART_RECEIVED == status) {
-    LOG(LogLevel::DEBUG) << "Waiting for rest of package";
+    DLOG(INFO) << "Waiting for rest of package";
   } else if (Status::OK == status) {
     http::Parser::PacketPtr packet = current_http_parser_->GetPacket();
     if (nullptr != observer_) {

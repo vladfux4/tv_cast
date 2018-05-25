@@ -5,7 +5,9 @@
 #include "logic/client_logic.h"
 
 int main(int argc, char* argv[]) {
-  LOG(LogLevel::INFO) << "Run";
+  InitLogger(argv[0]);
+
+  LOG(INFO) << "Start";
 
   try {
     CommunicationController com_ctr;
@@ -15,11 +17,11 @@ int main(int argc, char* argv[]) {
     com_ctr.RegisterHttpServerObserver(server_logic);
     com_ctr.RegisterHttpClientObserver(client_logic);
 
-    client_logic.SendGetRequest();
+//    client_logic.SendGetRequest();
 
     com_ctr.Run();
   } catch (std::exception& e) {
-    LOG(LogLevel::DEBUG) << "Exception: " << e.what();
+    LOG(ERROR) << "Exception: " << e.what();
   }
 
   return 0;

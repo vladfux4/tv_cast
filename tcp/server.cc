@@ -12,11 +12,11 @@ Server::Server(boost::asio::io_service& io_service,
     : io_service_(io_service),
       acceptor_(io_service,
           impl::tcp::endpoint(impl::tcp::v4(), port)) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__ << "(" << port << ")";
+  DLOG(INFO) << __PRETTY_FUNCTION__ << "(" << port << ")";
 }
 
 Server::~Server() {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 
 void Server::Start() {
@@ -25,28 +25,27 @@ void Server::Start() {
 
 void Server::HandleAccept(SessionPtr new_session,
                           const boost::system::error_code& error) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+  DLOG(INFO) << __PRETTY_FUNCTION__;
 
   if (!error) {
     new_session->Read();
     CreateSession();
   } else {
+    LOG(WARNING) << error.message();
     new_session->Close();
   }
 }
 
 void Server::CreateSession() {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
-
   auto accessor = GetNewSessionAccessor();
-  if (nullptr != accessor) {
-    SessionPtr new_session(new Session(*accessor, io_service_));
-    AddSession(new_session);
+  CHECK_NOTNULL(accessor);
 
-    acceptor_.async_accept(new_session->GetSocket(),
-        boost::bind(&Server::HandleAccept, this, new_session,
-            boost::asio::placeholders::error));
-  }
+  SessionPtr new_session(new Session(*accessor, io_service_));
+  AddSession(new_session);
+
+  acceptor_.async_accept(new_session->GetSocket(),
+      boost::bind(&Server::HandleAccept, this, new_session,
+          boost::asio::placeholders::error));
 }
 
 } // namespace tcp

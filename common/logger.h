@@ -1,12 +1,24 @@
 #ifndef COMMONG_LOGGER_H
 #define COMMONG_LOGGER_H
 
+#define ENABLE_GLOG
+
+/**
+ * @brief Init Logger
+ *
+ * @param str Init string for logger configuration
+ */
+void InitLogger(const char* str);
+
+#ifdef ENABLE_GLOG
+#include <glog/logging.h>
+#else
+
 #include <iostream>
 
-enum class LogLevel {
-  DEBUG,
+enum LogLevel {
   INFO,
-  WARN,
+  WARNING,
   ERROR
 };
 
@@ -63,15 +75,11 @@ inline std::string LOG::GetLabel(const LogLevel level) const {
   std::string label;
 
   switch(level) {
-    case LogLevel::DEBUG: {
-      label = "DEBUG";
-      break;
-    }
     case LogLevel::INFO: {
       label = "INFO";
       break;
     }
-    case LogLevel::WARN: {
+    case LogLevel::WARNING: {
       label = "WARN";
       break;
     }
@@ -83,6 +91,12 @@ inline std::string LOG::GetLabel(const LogLevel level) const {
 
   return label;
 }
+
+typedef LOG DLOG;
+#define VLOG(x) LOG(INFO)
+#define CHECK_NOTNULL(x) assert(0 != x)
+
+#endif  // NO_GLOG
 
 template <typename T>
 void IGNORE(T &&) {}
