@@ -27,6 +27,11 @@ class Server : public net::SessionDispatcher {
   virtual ~Server();
 
   /**
+   * @brief Start
+   */
+  void Start();
+
+  /**
    * @brief Handle TCP accept
    *
    * @param new_session TCP Session

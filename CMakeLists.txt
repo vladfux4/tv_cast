@@ -23,6 +23,8 @@ add_executable(${PROJECT_NAME}
     "tcp/session.cc"
     "tcp/server.h"
     "tcp/server.cc"
+    "tcp/client.h"
+    "tcp/client.cc"
     "http/packet.h"
     "http/packet.cc"
     "http/parser.h"

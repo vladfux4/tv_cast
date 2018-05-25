@@ -13,12 +13,14 @@ Server::Server(boost::asio::io_service& io_service,
       acceptor_(io_service,
           impl::tcp::endpoint(impl::tcp::v4(), port)) {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__ << "(" << port << ")";
-
-  CreateSession();
 }
 
 Server::~Server() {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+}
+
+void Server::Start() {
+  CreateSession();
 }
 
 void Server::HandleAccept(SessionPtr new_session,
@@ -36,13 +38,15 @@ void Server::HandleAccept(SessionPtr new_session,
 void Server::CreateSession() {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 
-  SessionPtr new_session(
-      new Session(GetNewSessionAccessor(), io_service_));
-  AddSession(new_session);
+  auto accessor = GetNewSessionAccessor();
+  if (nullptr != accessor) {
+    SessionPtr new_session(new Session(*accessor, io_service_));
+    AddSession(new_session);
 
-  acceptor_.async_accept(new_session->GetSocket(),
-      boost::bind(&Server::HandleAccept, this, new_session,
-          boost::asio::placeholders::error));
+    acceptor_.async_accept(new_session->GetSocket(),
+        boost::bind(&Server::HandleAccept, this, new_session,
+            boost::asio::placeholders::error));
+  }
 }
 
 } // namespace tcp

@@ -1,8 +1,8 @@
-#include <boost/container/vector.hpp>
+#include <boost/move/unique_ptr.hpp>
 #include <boost/asio.hpp>
 
 #include "tcp/server.h"
-#include "http/packet.h"
+#include "tcp/client.h"
 #include "http/packet_handler.h"
 
 class CommunicationController {
@@ -31,6 +31,6 @@ class CommunicationController {
 
  private:
   boost::asio::io_service io_service_;
-  tcp::Server tcp_;
-  http::PacketHandler http_;
+  tcp::Server tcp_server_;
+  boost::movelib::unique_ptr<http::PacketHandlerCreator> http_handler_creator_;
 };

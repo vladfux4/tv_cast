@@ -2,13 +2,11 @@
 #include "common/logger.h"
 
 #include "com_ctrl.h"
-#include "http/parser.h"
 
 CommunicationController::CommunicationController()
   : io_service_(),
-    tcp_(io_service_, 49080),
-    http_() {
-  tcp_.RegisterHandler(http_);
+    tcp_server_(io_service_, 49080),
+    http_handler_creator_(nullptr) {
 }
 
 CommunicationController::~CommunicationController() {
@@ -16,9 +14,13 @@ CommunicationController::~CommunicationController() {
 
 void CommunicationController::RegisterHttpObserver(
     http::Packet::Observer& observer) {
-  http_.RegisterObserver(observer);
+
+  http_handler_creator_.reset(new http::PacketHandlerCreator(observer));
+  tcp_server_.RegisterCreator(*http_handler_creator_);
 }
 
 void CommunicationController::Run() {
+  tcp_server_.Start();
+
   io_service_.run();
 }

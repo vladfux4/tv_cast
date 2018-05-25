@@ -3,6 +3,7 @@
 
 #include <boost/container/vector.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/move/unique_ptr.hpp>
 
 #include "net/packet_handler.h"
 #include "net/session.h"
@@ -10,7 +11,7 @@
 
 namespace net {
 
-class SessionDispatcher : public net::PacketHandler {
+class SessionDispatcher {
  public:
   /**
    * @brief Constructor
@@ -23,16 +24,11 @@ class SessionDispatcher : public net::PacketHandler {
   virtual ~SessionDispatcher();
 
   /**
-   * @brief Register packets handler
+   * @brief Register packet handler creator
    *
-   * @param packet_handler Reference on handler
+   * @param creator Reference on creator
    */
-  void RegisterHandler(net::PacketHandler& handler);
-
-  virtual Status Handle(net::SessionPtr session,
-      const boost::asio::const_buffer& buffer) override;
-
-  virtual void HandleClose(net::SessionPtr session) override;
+  void RegisterCreator(net::PacketHandlerCreator& creator);
 
   /**
    * @brief Close Session
@@ -43,11 +39,14 @@ class SessionDispatcher : public net::PacketHandler {
 
  protected:
   /**
-   * @brief Create accessor for new session
-   *
-   * @return accessor
+   * @brief SessionAccessor unique pointer type
    */
-  const SessionAccessor GetNewSessionAccessor();
+  typedef boost::movelib::unique_ptr<SessionAccessor> SessionAccessorPtr;
+
+  /**
+   * @brief Create accessor for new session
+   */
+  SessionAccessorPtr GetNewSessionAccessor();
 
   /**
    * @brief Add session to pool
@@ -56,13 +55,13 @@ class SessionDispatcher : public net::PacketHandler {
    */
   void AddSession(SessionPtr session);
 
+  net::PacketHandlerCreator* creator_;
  private:
   /**
    * @brief Session pool type
    */
   typedef boost::container::vector<SessionPtr> SessionPool;
 
-  net::PacketHandler* packet_handler_;
   SessionPool session_pool_;
 };
 

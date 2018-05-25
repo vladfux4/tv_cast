@@ -5,7 +5,7 @@
 namespace net {
 
 SessionDispatcher::SessionDispatcher()
-    : packet_handler_(nullptr),
+    : creator_(nullptr),
       session_pool_() {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 }
@@ -14,22 +14,8 @@ SessionDispatcher::~SessionDispatcher() {
   LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 }
 
-void SessionDispatcher::RegisterHandler(net::PacketHandler& handler) {
-  packet_handler_ = &handler;
-}
-
-net::PacketHandler::Status SessionDispatcher::Handle(
-    net::SessionPtr session,
-    const boost::asio::const_buffer& buffer) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
-
-  return packet_handler_->Handle(session, buffer);
-}
-
-void SessionDispatcher::HandleClose(SessionPtr session) {
-  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
-
-  return packet_handler_->HandleClose(session);
+void SessionDispatcher::RegisterCreator(PacketHandlerCreator& creator) {
+  creator_ = &creator;
 }
 
 void SessionDispatcher::CloseSession(const SessionAccessor& accessor) {
@@ -40,6 +26,9 @@ void SessionDispatcher::CloseSession(const SessionAccessor& accessor) {
     if (session.GetAccessor().kId == accessor.kId) {
       LOG(LogLevel::DEBUG) << "Close TCP session ID:"
                            << accessor.kId;
+      if (nullptr != creator_) {
+        creator_->Delete(&(session.GetAccessor().handler));
+      }
 
       session_pool_.erase(it);
       break;
@@ -47,14 +36,28 @@ void SessionDispatcher::CloseSession(const SessionAccessor& accessor) {
   }
 }
 
-const SessionAccessor SessionDispatcher::GetNewSessionAccessor() {
+SessionDispatcher::SessionAccessorPtr SessionDispatcher::GetNewSessionAccessor() {
+  SessionAccessorPtr retval(nullptr);
   static uint32_t index = 0;
-  return SessionAccessor(*this, index++);
+
+  do {
+    if (nullptr == creator_) {
+      break;
+    }
+
+    net::PacketHandler* handler = creator_->Create();
+    if (nullptr == handler) {
+      break;
+    }
+
+    retval.reset(new SessionAccessor(*this, *handler, index++));
+  } while (false);
+
+  return boost::move(retval);
 }
 
 void SessionDispatcher::AddSession(SessionPtr session) {
   session_pool_.push_back(session);
 }
-
 
 } // namespace net

@@ -44,6 +44,31 @@ class PacketHandler {
   virtual void HandleClose(SessionPtr session) = 0;
 };
 
+/**
+ * @brief The Packet Handler Creator class
+ */
+class PacketHandlerCreator {
+ public:
+  /**
+   * @brief Create new packet handler
+   *
+   * @return pointer on handler
+   */
+  virtual PacketHandler* Create() = 0;
+
+  /**
+   * @brief Delete packet handler
+   *
+   * @param pointer on handler
+   */
+  virtual void Delete(PacketHandler* handler) = 0;
+
+  /**
+   * @brief Destructor
+   */
+  virtual ~PacketHandlerCreator() {}
+};
+
 } // namespace net
 
 #endif  // NET_PACKET_HANDLER_H

@@ -7,9 +7,12 @@ namespace http {
 PacketHandler::PacketHandler()
   : observer_(nullptr),
     current_http_parser_(nullptr) {
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
 }
 
 PacketHandler::~PacketHandler() {
+  LOG(LogLevel::DEBUG) << __PRETTY_FUNCTION__;
+
   DeleteHttpParser();
 }
 
@@ -60,6 +63,24 @@ void PacketHandler::DeleteHttpParser() {
     delete current_http_parser_;
     current_http_parser_ = nullptr;
   }
+}
+
+PacketHandlerCreator::PacketHandlerCreator(Packet::Observer& observer)
+  : observer_(observer) {
+}
+
+PacketHandlerCreator::~PacketHandlerCreator() {
+}
+
+net::PacketHandler* PacketHandlerCreator::Create() {
+  PacketHandler* handler = new http::PacketHandler();
+  handler->RegisterObserver(observer_);
+
+  return handler;
+}
+
+void PacketHandlerCreator::Delete(net::PacketHandler* handler) {
+  delete handler;
 }
 
 }  // namespace http
