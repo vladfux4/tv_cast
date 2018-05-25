@@ -1,10 +1,10 @@
 #include <boost/bind.hpp>
 
-#include "tcp/client.h"
+#include "anet/tcp/client.h"
 #include "common/logger.h"
 
+namespace anet {
 namespace tcp {
-
 
 Client::Client(boost::asio::io_service& io_service)
     : io_service_(io_service) {
@@ -28,3 +28,4 @@ SessionPtr Client::CreateSession(const impl::tcp::endpoint& target) {
 }
 
 } // namespace tcp
+} // namespace anet

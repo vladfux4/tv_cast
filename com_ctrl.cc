@@ -17,22 +17,24 @@ CommunicationController::~CommunicationController() {
 }
 
 void CommunicationController::RegisterHttpServerObserver(
-    http::Packet::Observer& observer) {
+    anet::http::Packet::Observer& observer) {
   LOG(INFO) << __PRETTY_FUNCTION__;
 
-  http_handler_creator_.reset(new http::SessionHandlerCreator(observer));
+  http_handler_creator_.reset(
+      new anet::http::SessionHandlerCreator(observer));
   tcp_server_.RegisterCreator(*http_handler_creator_);
 }
 
 void CommunicationController::RegisterHttpClientObserver(
-    http::Packet::Observer& observer) {
+    anet::http::Packet::Observer& observer) {
   LOG(INFO) << __PRETTY_FUNCTION__;
 
-  http_client_handler_creator_.reset(new http::SessionHandlerCreator(observer));
+  http_client_handler_creator_.reset(
+      new anet::http::SessionHandlerCreator(observer));
   tcp_client_.RegisterCreator(*http_client_handler_creator_);
 }
 
-tcp::SessionPtr CommunicationController::CreateHttpClientSession(
+anet::tcp::SessionPtr CommunicationController::CreateHttpClientSession(
     const boost::asio::ip::tcp::endpoint& target) {
   DLOG(INFO) << __PRETTY_FUNCTION__;
 

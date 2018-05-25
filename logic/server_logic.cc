@@ -7,11 +7,11 @@ ServerLogic::ServerLogic() {
   DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 
-void ServerLogic::HandlePacket(net::SessionPtr session,
-                         const http::Packet& packet) {
+void ServerLogic::HandlePacket(anet::net::SessionPtr session,
+                         const anet::http::Packet& packet) {
   DLOG(INFO) << __PRETTY_FUNCTION__;
 
-  net::Session::BufferPtr buffer = packet.Serialize();
+  anet::net::Session::BufferPtr buffer = packet.Serialize();
 
   if (nullptr != buffer) {
     DLOG(INFO) << "HTTP PACKET";
@@ -20,16 +20,16 @@ void ServerLogic::HandlePacket(net::SessionPtr session,
                        buffer->size());
   }
 
-  http::Packet new_packet;
-  new_packet.Init(1,1, http::Packet::Status::OK, http::Packet::Method::INIT,
-              http::Packet::Type::RESPONSE);
+  anet::http::Packet new_packet;
+  new_packet.Init(1,1, anet::http::Packet::Status::OK,
+      anet::http::Packet::Method::INIT, anet::http::Packet::Type::RESPONSE);
   new_packet.AddHeaderField("Content-Type", "text/html; charset=utf-8");
-  http::Packet::BufferPtr body(
-      new http::Packet::Buffer(buffer->begin(), buffer->end()));
+  anet::http::Packet::BufferPtr body(
+      new anet::http::Packet::Buffer(buffer->begin(), buffer->end()));
   new_packet.AddHeaderField("Content-Length", std::to_string(body->size()));
   new_packet.AssignBody(boost::move(body));
 
-  net::Session::BufferPtr new_buffer = new_packet.Serialize();
+  anet::net::Session::BufferPtr new_buffer = new_packet.Serialize();
   if (nullptr != new_buffer) {
     DLOG(INFO) << "NEW HTTP PACKET";
     VLOG(2)
@@ -40,12 +40,12 @@ void ServerLogic::HandlePacket(net::SessionPtr session,
   }
 }
 
-void ServerLogic::HandleWriteComplete(net::SessionPtr session) {
+void ServerLogic::HandleWriteComplete(anet::net::SessionPtr session) {
   DLOG(INFO) << __PRETTY_FUNCTION__;
 //  session->Close();
 }
 
-void ServerLogic::HandleClose(net::SessionPtr session) {
+void ServerLogic::HandleClose(anet::net::SessionPtr session) {
   DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 

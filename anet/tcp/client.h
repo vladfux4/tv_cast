@@ -4,10 +4,11 @@
 #include <stdint.h>
 #include <boost/asio.hpp>
 
-#include "net/session_handler.h"
-#include "net/session_dispatcher.h"
-#include "tcp/session.h"
+#include "anet/net/session_handler.h"
+#include "anet/net/session_dispatcher.h"
+#include "anet/tcp/session.h"
 
+namespace anet {
 namespace tcp {
 
 namespace impl = boost::asio::ip;
@@ -39,5 +40,6 @@ class Client : public net::SessionDispatcher {
 };
 
 } // namespace tcp
+} // namespace anet
 
 #endif  // TCP_CLIENT_H

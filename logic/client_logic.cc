@@ -13,18 +13,18 @@ ClientLogic::ClientLogic(CommunicationController& com_ctrl)
 void ClientLogic::SendGetRequest() {
   DLOG(INFO) << __PRETTY_FUNCTION__;
 
-  tcp::SessionPtr session = com_ctrl_.CreateHttpClientSession(
+  anet::tcp::SessionPtr session = com_ctrl_.CreateHttpClientSession(
       boost::asio::ip::tcp::endpoint(
           boost::asio::ip::address::from_string("93.188.2.51"), 80));
   if (nullptr != session) {
-    http::Packet packet;
-    packet.Init(1,1, http::Packet::Status::INIT, http::Packet::Method::GET,
-                http::Packet::Type::REQUEST);
+    anet::http::Packet packet;
+    packet.Init(1,1, anet::http::Packet::Status::INIT,
+        anet::http::Packet::Method::GET, anet::http::Packet::Type::REQUEST);
     packet.SetUrl("http://93.188.2.51/");
     packet.AddHeaderField("Connection", "keep-alive");
     packet.AddHeaderField("Host", "93.188.2.51");
 
-    net::Session::BufferPtr new_buffer = packet.Serialize();
+    anet::net::Session::BufferPtr new_buffer = packet.Serialize();
     if (nullptr != new_buffer) {
       DLOG(INFO) << "REQUEST NEW HTTP PACKET";
       VLOG(2)
@@ -39,11 +39,11 @@ void ClientLogic::SendGetRequest() {
   }
 }
 
-void ClientLogic::HandlePacket(net::SessionPtr session,
-                         const http::Packet& packet) {
+void ClientLogic::HandlePacket(anet::net::SessionPtr session,
+                         const anet::http::Packet& packet) {
   DLOG(INFO) << __PRETTY_FUNCTION__;
 
-  net::Session::BufferPtr buffer = packet.Serialize();
+  anet::net::Session::BufferPtr buffer = packet.Serialize();
 
   if (nullptr != buffer) {
     DLOG(INFO) << "HTTP PACKET";
@@ -53,11 +53,11 @@ void ClientLogic::HandlePacket(net::SessionPtr session,
   }
 }
 
-void ClientLogic::HandleWriteComplete(net::SessionPtr session) {
+void ClientLogic::HandleWriteComplete(anet::net::SessionPtr session) {
   DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 
-void ClientLogic::HandleClose(net::SessionPtr session) {
+void ClientLogic::HandleClose(anet::net::SessionPtr session) {
   DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 

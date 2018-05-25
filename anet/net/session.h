@@ -5,8 +5,9 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio/buffer.hpp>
 
-#include "net/session_accessor.h"
+#include "anet/net/session_accessor.h"
 
+namespace anet {
 namespace net {
 
 /**
@@ -90,5 +91,6 @@ inline const Session::State& Session::GetState() const {
 typedef boost::shared_ptr<Session> SessionPtr;
 
 } // namespace net
+} // namespace anet
 
 #endif // NET_SESSION_H

@@ -1,10 +1,11 @@
 #ifndef HTTP_SESSION_HANDLER_H
 #define HTTP_SESSION_HANDLER_H
 
-#include "net/session_handler.h"
-#include "http/packet.h"
-#include "http/parser.h"
+#include "anet/net/session_handler.h"
+#include "anet/http/packet.h"
+#include "anet/http/parser.h"
 
+namespace anet {
 namespace http {
 
 class SessionHandler : public net::SessionHandler {
@@ -83,5 +84,6 @@ class SessionHandlerCreator : public net::SessionHandlerCreator {
 };
 
 }  // namespace http
+}  // namespace anet
 
 #endif  // HTTP_SESSION_HANDLER_H

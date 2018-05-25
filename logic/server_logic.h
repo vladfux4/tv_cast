@@ -1,21 +1,21 @@
 #ifndef LOGIC_SERVER_LOGIC_H
 #define LOGIC_SERVER_LOGIC_H
 
-#include "http/packet.h"
+#include "anet/http/packet.h"
 
 namespace logic {
 
-class ServerLogic : public http::Packet::Observer {
+class ServerLogic : public anet::http::Packet::Observer {
  public:
   /**
    * @brief Logic
    */
   ServerLogic();
 
-  virtual void HandlePacket(net::SessionPtr session,
-                            const http::Packet& packet) override;
-  virtual void HandleWriteComplete(net::SessionPtr session) override;
-  virtual void HandleClose(net::SessionPtr session) override;
+  virtual void HandlePacket(anet::net::SessionPtr session,
+                            const anet::http::Packet& packet) override;
+  virtual void HandleWriteComplete(anet::net::SessionPtr session) override;
+  virtual void HandleClose(anet::net::SessionPtr session) override;
 };
 
 }  // namespace logic

@@ -7,10 +7,11 @@
 #include <boost/asio/buffer.hpp>
 #include <boost/move/unique_ptr.hpp>
 
-#include "extra/http_parser.h"
-#include "http/packet.h"
-#include "net/session_handler.h"
+#include "anet/extra/http_parser.h"
+#include "anet/http/packet.h"
+#include "anet/net/session_handler.h"
 
+namespace anet {
 namespace http {
 
 class Parser {
@@ -160,5 +161,6 @@ Parser::PacketPtr Parser::GetPacket() {
 }
 
 }  // namespace http
+}  // namespace anet
 
 #endif  //HTTP_PARSER_H

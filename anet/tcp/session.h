@@ -5,8 +5,9 @@
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
 
-#include "net/session.h"
+#include "anet/net/session.h"
 
+namespace anet {
 namespace tcp {
 
 /**
@@ -88,5 +89,6 @@ inline boost::asio::ip::tcp::socket& Session::GetSocket() {
 typedef boost::shared_ptr<tcp::Session> SessionPtr;
 
 } // namespace net
+} // namespace anet
 
 #endif  // TCP_SESSION_H

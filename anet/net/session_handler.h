@@ -2,8 +2,9 @@
 #define NET_SESSION_HANDLER_H
 
 #include <boost/asio/buffer.hpp>
-#include "net/session.h"
+#include "anet/net/session.h"
 
+namespace anet {
 namespace net {
 
 /**
@@ -77,5 +78,6 @@ class SessionHandlerCreator {
 };
 
 } // namespace net
+} // namespace anet
 
 #endif  // NET_SESSION_HANDLER_H

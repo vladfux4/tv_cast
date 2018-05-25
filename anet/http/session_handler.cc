@@ -1,7 +1,8 @@
 #include "common/logger.h"
 
-#include "http/session_handler.h"
+#include "anet/http/session_handler.h"
 
+namespace anet {
 namespace http {
 
 SessionHandler::SessionHandler()
@@ -90,3 +91,4 @@ void SessionHandlerCreator::Delete(net::SessionHandler* handler) {
 }
 
 }  // namespace http
+}  // namespace anet

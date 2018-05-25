@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+namespace anet {
 namespace net {
 
 class SessionDispatcher;
@@ -30,5 +31,6 @@ struct SessionAccessor {
 };
 
 } // namespace net
+} // namespace anet
 
 #endif  // NET_SESSION_ACCESSOR_H

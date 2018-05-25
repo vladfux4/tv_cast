@@ -1,9 +1,9 @@
 #include <boost/move/unique_ptr.hpp>
 #include <boost/asio.hpp>
 
-#include "tcp/server.h"
-#include "tcp/client.h"
-#include "http/session_handler.h"
+#include "anet/tcp/server.h"
+#include "anet/tcp/client.h"
+#include "anet/http/session_handler.h"
 
 class CommunicationController {
  public:
@@ -17,9 +17,9 @@ class CommunicationController {
    */
   virtual ~CommunicationController();
 
-  void RegisterHttpServerObserver(http::Packet::Observer& observer);
-  void RegisterHttpClientObserver(http::Packet::Observer& observer);
-  tcp::SessionPtr CreateHttpClientSession(
+  void RegisterHttpServerObserver(anet::http::Packet::Observer& observer);
+  void RegisterHttpClientObserver(anet::http::Packet::Observer& observer);
+  anet::tcp::SessionPtr CreateHttpClientSession(
       const boost::asio::ip::tcp::endpoint& target);
 
   /**
@@ -29,8 +29,10 @@ class CommunicationController {
 
  private:
   boost::asio::io_service io_service_;
-  tcp::Server tcp_server_;
-  tcp::Client tcp_client_;
-  boost::movelib::unique_ptr<http::SessionHandlerCreator> http_handler_creator_;
-  boost::movelib::unique_ptr<http::SessionHandlerCreator> http_client_handler_creator_;
+  anet::tcp::Server tcp_server_;
+  anet::tcp::Client tcp_client_;
+  boost::movelib::unique_ptr<anet::http::SessionHandlerCreator>
+      http_handler_creator_;
+  boost::movelib::unique_ptr<anet::http::SessionHandlerCreator>
+      http_client_handler_creator_;
 };

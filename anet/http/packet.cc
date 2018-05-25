@@ -1,9 +1,10 @@
 #include <sstream>
 
-#include "http/packet.h"
+#include "anet/http/packet.h"
 
 #include "common/logger.h"
 
+namespace anet {
 namespace http {
 
 Packet::Packet()
@@ -106,3 +107,4 @@ const char* Packet::GetStatusName(http_status status) const {
 }
 
 }  // namespace http
+}  // namespace anet

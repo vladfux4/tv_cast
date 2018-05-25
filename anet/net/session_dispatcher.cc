@@ -1,7 +1,8 @@
-#include "net/session_dispatcher.h"
+#include "anet/net/session_dispatcher.h"
 
 #include "common/logger.h"
 
+namespace anet {
 namespace net {
 
 SessionDispatcher::SessionDispatcher()
@@ -61,3 +62,4 @@ void SessionDispatcher::AddSession(SessionPtr session) {
 }
 
 } // namespace net
+} // namespace anet

@@ -5,10 +5,11 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/move/unique_ptr.hpp>
 
-#include "net/session_handler.h"
-#include "net/session.h"
-#include "net/session_accessor.h"
+#include "anet/net/session_handler.h"
+#include "anet/net/session.h"
+#include "anet/net/session_accessor.h"
 
+namespace anet {
 namespace net {
 
 class SessionDispatcher {
@@ -66,5 +67,6 @@ class SessionDispatcher {
 };
 
 } // namespace net
+} // namespace anet
 
 #endif  // NET_SESSION_DISPATCHER

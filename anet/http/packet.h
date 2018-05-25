@@ -9,9 +9,10 @@
 
 #include <boost/move/unique_ptr.hpp>
 
-#include "net/session.h"
-#include "extra/http_parser.h"
+#include "anet/net/session.h"
+#include "anet/extra/http_parser.h"
 
+namespace anet {
 namespace http {
 
 /**
@@ -165,5 +166,6 @@ class Packet {
 };
 
 }  // namespace http
+}  // namespace anet
 
 #endif  //HTTP_PACKET_H

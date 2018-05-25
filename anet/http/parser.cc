@@ -1,6 +1,7 @@
-#include "http/parser.h"
+#include "anet/http/parser.h"
 #include "common/logger.h"
 
+namespace anet {
 namespace http {
 
 Parser::Parser()
@@ -309,3 +310,4 @@ int Parser::SHandleData(cpp_http_data_cb func,
 }
 
 }  // namespace http
+}  // namespace anet
