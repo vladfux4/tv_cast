@@ -21,7 +21,7 @@ SessionPtr Client::CreateSession(const impl::tcp::endpoint& target) {
 
   auto accessor = GetNewSessionAccessor();
   if (nullptr != accessor) {
-    SessionPtr new_session(new Session(*accessor, io_service_));
+    new_session = SessionPtr(new Session(*accessor, io_service_));
     AddSession(new_session);
 
     new_session->GetSocket().connect(target);

@@ -17,12 +17,10 @@ class CommunicationController {
    */
   virtual ~CommunicationController();
 
-  /**
-   * @brief Register HTTP Observer
-   *
-   * @param observer Reference on observer
-   */
-  void RegisterHttpObserver(http::Packet::Observer& observer);
+  void RegisterHttpServerObserver(http::Packet::Observer& observer);
+  void RegisterHttpClientObserver(http::Packet::Observer& observer);
+  tcp::SessionPtr CreateHttpClientSession(
+      const boost::asio::ip::tcp::endpoint& target);
 
   /**
    * @brief Run
@@ -32,5 +30,7 @@ class CommunicationController {
  private:
   boost::asio::io_service io_service_;
   tcp::Server tcp_server_;
+  tcp::Client tcp_client_;
   boost::movelib::unique_ptr<http::PacketHandlerCreator> http_handler_creator_;
+  boost::movelib::unique_ptr<http::PacketHandlerCreator> http_client_handler_creator_;
 };

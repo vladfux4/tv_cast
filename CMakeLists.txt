@@ -31,8 +31,10 @@ add_executable(${PROJECT_NAME}
     "http/parser.cc"
     "http/packet_handler.h"
     "http/packet_handler.cc"
-    "logic/logic.h"
-    "logic/logic.cc"
+    "logic/server_logic.h"
+    "logic/server_logic.cc"
+    "logic/client_logic.h"
+    "logic/client_logic.cc"
     "extra/http_parser.h"
     "extra/http_parser.c"
     )
