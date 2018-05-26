@@ -12,10 +12,10 @@ set(CMAKE_BUILD_TYPE Debug)
 include_directories(${Boost_INCLUDE_DIR} .)
 
 add_executable(${PROJECT_NAME}
-    "anet/net/session_dispatcher.h"
-    "anet/net/session_dispatcher.cc"
-    "anet/net/session.h"
     "anet/net/session_handler.h"
+    "anet/net/session_handler.cc"
+    "anet/net/session.h"
+    "anet/net/session_observer.h"
     "anet/net/session_accessor.h"
     "anet/tcp/session.h"
     "anet/tcp/session.cc"
@@ -27,8 +27,8 @@ add_executable(${PROJECT_NAME}
     "anet/http/packet.cc"
     "anet/http/parser.h"
     "anet/http/parser.cc"
-    "anet/http/session_handler.h"
-    "anet/http/session_handler.cc"
+    "anet/http/session_observer.h"
+    "anet/http/session_observer.cc"
     "anet/extra/http_parser.h"
     "anet/extra/http_parser.c"
 

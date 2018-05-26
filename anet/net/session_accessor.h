@@ -6,8 +6,8 @@
 namespace anet {
 namespace net {
 
-class SessionDispatcher;
 class SessionHandler;
+class SessionObserver;
 
 /**
  * @brief The Session Accessor struct
@@ -20,13 +20,13 @@ struct SessionAccessor {
    * @param dispatcher Reference on Packet handler
    * @param kId Dispatcher internal id
    */
-  SessionAccessor(SessionDispatcher& dispatcher,
-                  SessionHandler& handler,
+  SessionAccessor(SessionHandler& dispatcher,
+                  SessionObserver& handler,
                  const uint32_t kId)
       : dispatcher(dispatcher), handler(handler), kId(kId) {}
 
-  SessionDispatcher& dispatcher;
-  SessionHandler& handler;
+  SessionHandler& dispatcher;
+  SessionObserver& handler;
   const uint32_t kId;
 };
 

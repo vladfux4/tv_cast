@@ -21,7 +21,7 @@ void CommunicationController::RegisterHttpServerObserver(
   LOG(INFO) << __PRETTY_FUNCTION__;
 
   http_handler_creator_.reset(
-      new anet::http::SessionHandlerCreator(observer));
+      new anet::http::SessionObserverCreator(observer));
   tcp_server_.RegisterCreator(*http_handler_creator_);
 }
 
@@ -30,7 +30,7 @@ void CommunicationController::RegisterHttpClientObserver(
   LOG(INFO) << __PRETTY_FUNCTION__;
 
   http_client_handler_creator_.reset(
-      new anet::http::SessionHandlerCreator(observer));
+      new anet::http::SessionObserverCreator(observer));
   tcp_client_.RegisterCreator(*http_client_handler_creator_);
 }
 

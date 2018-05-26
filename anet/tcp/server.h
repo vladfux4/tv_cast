@@ -5,14 +5,14 @@
 #include <boost/asio.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "anet/net/session_observer.h"
 #include "anet/net/session_handler.h"
-#include "anet/net/session_dispatcher.h"
 #include "anet/tcp/session.h"
 
 namespace anet {
 namespace tcp {
 
-class Server : public net::SessionDispatcher {
+class Server : public net::SessionHandler {
  public:
   /**
    * @brief Constructor

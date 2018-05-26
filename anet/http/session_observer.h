@@ -1,26 +1,26 @@
 #ifndef HTTP_SESSION_HANDLER_H
 #define HTTP_SESSION_HANDLER_H
 
-#include "anet/net/session_handler.h"
+#include "anet/net/session_observer.h"
 #include "anet/http/packet.h"
 #include "anet/http/parser.h"
 
 namespace anet {
 namespace http {
 
-class SessionHandler : public net::SessionHandler {
+class SessionObserver : public net::SessionObserver {
  public:
   /**
    * @brief Constructor
    */
-  SessionHandler();
+  SessionObserver();
 
   /**
    * @brief Destructor
    */
-  virtual ~SessionHandler();
+  virtual ~SessionObserver();
 
-  ///net::SessionHandler interface
+  ///net::SessionObserver interface
   virtual Status HandleData(net::SessionPtr session,
       const boost::asio::const_buffer& buffer) override;
   virtual void HandleWriteComplete(net::SessionPtr session) override;
@@ -51,33 +51,33 @@ class SessionHandler : public net::SessionHandler {
 /**
  * @brief The Packet Handler Creator class
  */
-class SessionHandlerCreator : public net::SessionHandlerCreator {
+class SessionObserverCreator : public net::SessionObserverCreator {
  public:
  /**
    * @brief Constructor
    *
    * @param observer Reference HTTP Packet observer
    */
-  SessionHandlerCreator(http::Packet::Observer& observer);
+  SessionObserverCreator(http::Packet::Observer& observer);
 
   /**
    * @brief Destructor
    */
-  virtual ~SessionHandlerCreator();
+  virtual ~SessionObserverCreator();
 
   /**
    * @brief Create new packet handler
    *
    * @return pointer on handler
    */
-  virtual net::SessionHandler* Create() override;
+  virtual net::SessionObserver* Create() override;
 
   /**
    * @brief Delete packet handler
    *
    * @param pointer on handler
    */
-  virtual void Delete(net::SessionHandler* handler) override;
+  virtual void Delete(net::SessionObserver* handler) override;
 
  private:
   http::Packet::Observer& observer_;

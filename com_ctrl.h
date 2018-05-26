@@ -3,7 +3,7 @@
 
 #include "anet/tcp/server.h"
 #include "anet/tcp/client.h"
-#include "anet/http/session_handler.h"
+#include "anet/http/session_observer.h"
 
 class CommunicationController {
  public:
@@ -31,8 +31,8 @@ class CommunicationController {
   boost::asio::io_service io_service_;
   anet::tcp::Server tcp_server_;
   anet::tcp::Client tcp_client_;
-  boost::movelib::unique_ptr<anet::http::SessionHandlerCreator>
+  boost::movelib::unique_ptr<anet::http::SessionObserverCreator>
       http_handler_creator_;
-  boost::movelib::unique_ptr<anet::http::SessionHandlerCreator>
+  boost::movelib::unique_ptr<anet::http::SessionObserverCreator>
       http_client_handler_creator_;
 };

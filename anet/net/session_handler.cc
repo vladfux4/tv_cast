@@ -1,25 +1,25 @@
-#include "anet/net/session_dispatcher.h"
+#include "anet/net/session_handler.h"
 
 #include "common/logger.h"
 
 namespace anet {
 namespace net {
 
-SessionDispatcher::SessionDispatcher()
+SessionHandler::SessionHandler()
     : creator_(nullptr),
       session_pool_() {
   DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 
-SessionDispatcher::~SessionDispatcher() {
+SessionHandler::~SessionHandler() {
   DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 
-void SessionDispatcher::RegisterCreator(SessionHandlerCreator& creator) {
+void SessionHandler::RegisterCreator(SessionObserverCreator& creator) {
   creator_ = &creator;
 }
 
-void SessionDispatcher::CloseSession(const SessionAccessor& accessor) {
+void SessionHandler::CloseSession(const SessionAccessor& accessor) {
   for(SessionPool::iterator it = session_pool_.begin();
       it != session_pool_.end(); ++it) {
     Session& session = *(*it);
@@ -37,7 +37,7 @@ void SessionDispatcher::CloseSession(const SessionAccessor& accessor) {
   }
 }
 
-SessionDispatcher::SessionAccessorPtr SessionDispatcher::GetNewSessionAccessor() {
+SessionHandler::SessionAccessorPtr SessionHandler::GetNewSessionAccessor() {
   SessionAccessorPtr retval(nullptr);
   static uint32_t index = 0;
 
@@ -46,7 +46,7 @@ SessionDispatcher::SessionAccessorPtr SessionDispatcher::GetNewSessionAccessor()
       break;
     }
 
-    net::SessionHandler* handler = creator_->Create();
+    net::SessionObserver* handler = creator_->Create();
     if (nullptr == handler) {
       break;
     }
@@ -57,7 +57,7 @@ SessionDispatcher::SessionAccessorPtr SessionDispatcher::GetNewSessionAccessor()
   return boost::move(retval);
 }
 
-void SessionDispatcher::AddSession(SessionPtr session) {
+void SessionHandler::AddSession(SessionPtr session) {
   session_pool_.push_back(session);
 }
 

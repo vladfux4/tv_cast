@@ -1,23 +1,23 @@
 #include "common/logger.h"
 
-#include "anet/http/session_handler.h"
+#include "anet/http/session_observer.h"
 
 namespace anet {
 namespace http {
 
-SessionHandler::SessionHandler()
+SessionObserver::SessionObserver()
   : observer_(nullptr),
     current_http_parser_(nullptr) {
   DLOG(INFO) << __PRETTY_FUNCTION__;
 }
 
-SessionHandler::~SessionHandler() {
+SessionObserver::~SessionObserver() {
   DLOG(INFO) << __PRETTY_FUNCTION__;
 
   DeleteHttpParser();
 }
 
-net::SessionHandler::Status SessionHandler::HandleData(
+net::SessionObserver::Status SessionObserver::HandleData(
     net::SessionPtr session,
     const boost::asio::const_buffer& buffer) {
   CreateHttpParser();
@@ -41,13 +41,13 @@ net::SessionHandler::Status SessionHandler::HandleData(
   return status;
 }
 
-void SessionHandler::HandleWriteComplete(net::SessionPtr session) {
+void SessionObserver::HandleWriteComplete(net::SessionPtr session) {
   if (nullptr != observer_) {
     observer_->HandleWriteComplete(session);
   }
 }
 
-void SessionHandler::HandleClose(net::SessionPtr session) {
+void SessionObserver::HandleClose(net::SessionPtr session) {
   if (nullptr != observer_) {
     observer_->HandleClose(session);
   }
@@ -55,38 +55,38 @@ void SessionHandler::HandleClose(net::SessionPtr session) {
   DeleteHttpParser();
 }
 
-void SessionHandler::RegisterObserver(Packet::Observer& observer) {
+void SessionObserver::RegisterObserver(Packet::Observer& observer) {
   observer_ = &observer;
 }
 
-void SessionHandler::CreateHttpParser() {
+void SessionObserver::CreateHttpParser() {
   if (nullptr == current_http_parser_) {
     current_http_parser_ = new http::Parser();
   }
 }
 
-void SessionHandler::DeleteHttpParser() {
+void SessionObserver::DeleteHttpParser() {
   if (nullptr != current_http_parser_) {
     delete current_http_parser_;
     current_http_parser_ = nullptr;
   }
 }
 
-SessionHandlerCreator::SessionHandlerCreator(Packet::Observer& observer)
+SessionObserverCreator::SessionObserverCreator(Packet::Observer& observer)
   : observer_(observer) {
 }
 
-SessionHandlerCreator::~SessionHandlerCreator() {
+SessionObserverCreator::~SessionObserverCreator() {
 }
 
-net::SessionHandler* SessionHandlerCreator::Create() {
-  SessionHandler* handler = new http::SessionHandler();
+net::SessionObserver* SessionObserverCreator::Create() {
+  SessionObserver* handler = new http::SessionObserver();
   handler->RegisterObserver(observer_);
 
   return handler;
 }
 
-void SessionHandlerCreator::Delete(net::SessionHandler* handler) {
+void SessionObserverCreator::Delete(net::SessionObserver* handler) {
   delete handler;
 }
 

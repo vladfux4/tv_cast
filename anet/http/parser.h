@@ -9,7 +9,7 @@
 
 #include "anet/extra/http_parser.h"
 #include "anet/http/packet.h"
-#include "anet/net/session_handler.h"
+#include "anet/net/session_observer.h"
 
 namespace anet {
 namespace http {
@@ -49,14 +49,14 @@ class Parser {
    *
    * @return status
    */
-  net::SessionHandler::Status Parse(const boost::asio::const_buffer& buffer);
+  net::SessionObserver::Status Parse(const boost::asio::const_buffer& buffer);
 
   /**
    * @brief Get parse status
    *
    * @return status
    */
-  inline net::SessionHandler::Status GetStatus() const;
+  inline net::SessionObserver::Status GetStatus() const;
 
   /**
    * @brief Get Packet
@@ -142,7 +142,7 @@ class Parser {
   static int SHandleData(cpp_http_data_cb func,
                          http_parser* c_parser, const char* at, size_t length);
 
-  net::SessionHandler::Status status_;
+  net::SessionObserver::Status status_;
   PacketPtr packet_;
   http_parser_settings setting_;
   boost::movelib::unique_ptr<http_parser> parser_;
@@ -152,7 +152,7 @@ class Parser {
   uint32_t content_length_;
 };
 
-inline net::SessionHandler::Status Parser::GetStatus() const {
+inline net::SessionObserver::Status Parser::GetStatus() const {
   return status_;
 }
 

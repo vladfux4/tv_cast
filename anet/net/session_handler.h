@@ -1,83 +1,72 @@
-#ifndef NET_SESSION_HANDLER_H
-#define NET_SESSION_HANDLER_H
+#ifndef NET_SESSION_DISPATCHER
+#define NET_SESSION_DISPATCHER
 
-#include <boost/asio/buffer.hpp>
+#include <boost/container/vector.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/move/unique_ptr.hpp>
+
+#include "anet/net/session_observer.h"
 #include "anet/net/session.h"
+#include "anet/net/session_accessor.h"
 
 namespace anet {
 namespace net {
 
-/**
- * @brief The SessionHandler Interface class
- */
 class SessionHandler {
  public:
   /**
-   * @brief The handle status enum
+   * @brief Constructor
    */
-  enum class Status {
-    OK,
-    PART_RECEIVED,
-    ERROR
-  };
+  SessionHandler();
 
   /**
    * @brief Destructor
    */
-  virtual ~SessionHandler() {}
+  virtual ~SessionHandler();
 
   /**
-   * @brief Handle packet
+   * @brief Register packet handler creator
+   *
+   * @param creator Reference on creator
+   */
+  void RegisterCreator(net::SessionObserverCreator& creator);
+
+  /**
+   * @brief Close Session
+   *
+   * @param accessor Session's accessor
+   */
+  void CloseSession(const SessionAccessor& accessor);
+
+ protected:
+  /**
+   * @brief SessionAccessor unique pointer type
+   */
+  typedef boost::movelib::unique_ptr<SessionAccessor> SessionAccessorPtr;
+
+  /**
+   * @brief Create accessor for new session
+   */
+  SessionAccessorPtr GetNewSessionAccessor();
+
+  /**
+   * @brief Add session to pool
    *
    * @param session Pointer on session
-   * @param buffer Buffer
-   *
-   * @return handle status
    */
-  virtual Status HandleData(SessionPtr session,
-                        const boost::asio::const_buffer& buffer) = 0;
+  void AddSession(SessionPtr session);
 
+  net::SessionObserverCreator* creator_;
+ private:
   /**
-   * @brief Handle Close event
-   *
-   * @param session Pointer on session
+   * @brief Session pool type
    */
-  virtual void HandleWriteComplete(SessionPtr session) = 0;
+  typedef boost::container::vector<SessionPtr> SessionPool;
 
-  /**
-   * @brief Handle Close event
-   *
-   * @param session Pointer on session
-   */
-  virtual void HandleClose(SessionPtr session) = 0;
-};
-
-/**
- * @brief The Packet Handler Creator class
- */
-class SessionHandlerCreator {
- public:
-  /**
-   * @brief Create new packet handler
-   *
-   * @return pointer on handler
-   */
-  virtual SessionHandler* Create() = 0;
-
-  /**
-   * @brief Delete packet handler
-   *
-   * @param pointer on handler
-   */
-  virtual void Delete(SessionHandler* handler) = 0;
-
-  /**
-   * @brief Destructor
-   */
-  virtual ~SessionHandlerCreator() {}
+  SessionPool session_pool_;
 };
 
 } // namespace net
 } // namespace anet
 
-#endif  // NET_SESSION_HANDLER_H
+#endif  // NET_SESSION_DISPATCHER
