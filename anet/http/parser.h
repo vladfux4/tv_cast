@@ -49,14 +49,14 @@ class Parser {
    *
    * @return status
    */
-  net::SessionObserver::Status Parse(const boost::asio::const_buffer& buffer);
+  net::PacketObserver::Status Parse(const boost::asio::const_buffer& buffer);
 
   /**
    * @brief Get parse status
    *
    * @return status
    */
-  inline net::SessionObserver::Status GetStatus() const;
+  inline net::PacketObserver::Status GetStatus() const;
 
   /**
    * @brief Get Packet
@@ -142,7 +142,7 @@ class Parser {
   static int SHandleData(cpp_http_data_cb func,
                          http_parser* c_parser, const char* at, size_t length);
 
-  net::SessionObserver::Status status_;
+  net::PacketObserver::Status status_;
   PacketPtr packet_;
   http_parser_settings setting_;
   boost::movelib::unique_ptr<http_parser> parser_;
@@ -152,7 +152,7 @@ class Parser {
   uint32_t content_length_;
 };
 
-inline net::SessionObserver::Status Parser::GetStatus() const {
+inline net::PacketObserver::Status Parser::GetStatus() const {
   return status_;
 }
 

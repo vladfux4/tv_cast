@@ -17,23 +17,23 @@ SessionObserver::~SessionObserver() {
   DeleteHttpParser();
 }
 
-net::SessionObserver::Status SessionObserver::HandleData(
+net::PacketObserver::Status SessionObserver::HandleData(
     net::SessionPtr session,
     const boost::asio::const_buffer& buffer) {
   CreateHttpParser();
 
-  Status status = current_http_parser_->Parse(buffer);
+  net::PacketObserver::Status status = current_http_parser_->Parse(buffer);
 
-  if (Status::PART_RECEIVED == status) {
+  if (net::PacketObserver::Status::PART_RECEIVED == status) {
     DLOG(INFO) << "Waiting for rest of package";
-  } else if (Status::OK == status) {
+  } else if (net::PacketObserver::Status::OK == status) {
     http::Parser::PacketPtr packet = current_http_parser_->GetPacket();
     if (nullptr != observer_) {
       observer_->HandlePacket(session, *packet);
     }
 
     DeleteHttpParser();
-  } else if (Status::ERROR == status) {
+  } else if (net::PacketObserver::Status::ERROR == status) {
     DeleteHttpParser();
     session->Close();
   }

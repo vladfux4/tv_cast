@@ -1,8 +1,10 @@
-#ifndef NET_SESSION_HANDLER_H
-#define NET_SESSION_HANDLER_H
+#ifndef NET_SESSION_OBSERVER_H
+#define NET_SESSION_OBSERVER_H
 
 #include <boost/asio/buffer.hpp>
+
 #include "anet/net/session.h"
+#include "anet/net/packet_observer.h"
 
 namespace anet {
 namespace net {
@@ -12,14 +14,6 @@ namespace net {
  */
 class SessionObserver {
  public:
-  /**
-   * @brief The handle status enum
-   */
-  enum class Status {
-    OK,
-    PART_RECEIVED,
-    ERROR
-  };
 
   /**
    * @brief Destructor
@@ -34,8 +28,8 @@ class SessionObserver {
    *
    * @return handle status
    */
-  virtual Status HandleData(SessionPtr session,
-                        const boost::asio::const_buffer& buffer) = 0;
+  virtual PacketObserver::Status HandleData(SessionPtr session,
+      const boost::asio::const_buffer& buffer) = 0;
 
   /**
    * @brief Handle Close event
@@ -80,4 +74,4 @@ class SessionObserverCreator {
 } // namespace net
 } // namespace anet
 
-#endif  // NET_SESSION_HANDLER_H
+#endif  // NET_SESSION_OBSERVER_H

@@ -5,6 +5,8 @@
 #include "anet/tcp/client.h"
 #include "anet/http/session_observer.h"
 
+#include "anet/udp/server.h"
+
 class CommunicationController {
  public:
   /**
@@ -35,4 +37,5 @@ class CommunicationController {
       http_handler_creator_;
   boost::movelib::unique_ptr<anet::http::SessionObserverCreator>
       http_client_handler_creator_;
+  anet::udp::Server udp_server_;
 };

@@ -19,7 +19,7 @@ void ServerLogic::HandlePacket(anet::net::SessionPtr session,
         << std::string(reinterpret_cast<char*>(&buffer->at(0)),
                        buffer->size());
   }
-
+/*
   anet::http::Packet new_packet;
   new_packet.Init(1,1, anet::http::Packet::Status::OK,
       anet::http::Packet::Method::INIT, anet::http::Packet::Type::RESPONSE);
@@ -38,6 +38,7 @@ void ServerLogic::HandlePacket(anet::net::SessionPtr session,
 
     session->Write(new_buffer);
   }
+*/
 }
 
 void ServerLogic::HandleWriteComplete(anet::net::SessionPtr session) {

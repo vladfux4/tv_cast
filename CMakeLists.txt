@@ -17,12 +17,18 @@ add_executable(${PROJECT_NAME}
     "anet/net/session.h"
     "anet/net/session_observer.h"
     "anet/net/session_accessor.h"
+    "anet/net/packet_observer.h"
+
     "anet/tcp/session.h"
     "anet/tcp/session.cc"
     "anet/tcp/server.h"
     "anet/tcp/server.cc"
     "anet/tcp/client.h"
     "anet/tcp/client.cc"
+
+    "anet/udp/server.h"
+    "anet/udp/server.cc"
+
     "anet/http/packet.h"
     "anet/http/packet.cc"
     "anet/http/parser.h"

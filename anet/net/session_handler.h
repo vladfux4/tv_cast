@@ -1,5 +1,5 @@
-#ifndef NET_SESSION_DISPATCHER
-#define NET_SESSION_DISPATCHER
+#ifndef NET_SESSION_HANDLER_H
+#define NET_SESSION_HANDLER_H
 
 #include <boost/container/vector.hpp>
 #include <boost/shared_ptr.hpp>
@@ -69,4 +69,4 @@ class SessionHandler {
 } // namespace net
 } // namespace anet
 
-#endif  // NET_SESSION_DISPATCHER
+#endif  // NET_SESSION_HANDLER_H

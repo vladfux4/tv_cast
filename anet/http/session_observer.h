@@ -21,7 +21,7 @@ class SessionObserver : public net::SessionObserver {
   virtual ~SessionObserver();
 
   ///net::SessionObserver interface
-  virtual Status HandleData(net::SessionPtr session,
+  virtual net::PacketObserver::Status HandleData(net::SessionPtr session,
       const boost::asio::const_buffer& buffer) override;
   virtual void HandleWriteComplete(net::SessionPtr session) override;
   virtual void HandleClose(net::SessionPtr session) override;
