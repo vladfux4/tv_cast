@@ -38,15 +38,14 @@ add_executable(${PROJECT_NAME}
     "anet/extra/http_parser.h"
     "anet/extra/http_parser.c"
 
-    "logic/server_logic.h"
-    "logic/server_logic.cc"
-    "logic/client_logic.h"
-    "logic/client_logic.cc"
-
     "common/logger.h"
     "common/logger.cc"
+
     "com_ctrl.h"
     "com_ctrl.cc"
+    "app_ctrl.h"
+    "app_ctrl.cc"
+
     "main.cc"
     )
 
