@@ -14,6 +14,8 @@ int main(int argc, char* argv[]) {
     com_ctr.RegisterAppController(app_ctrl);
     com_ctr.Start();
 
+    app_ctrl.PlayVideo("http://2kit.de/cast/demovideo.mp4");
+
     io_service.run();
   } catch (std::exception& e) {
     LOG(ERROR) << "Exception: " << e.what();

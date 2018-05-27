@@ -13,7 +13,9 @@ ApplicationController::ApplicationController(CommunicationController& com_ctrl)
       notification_(),
       notification_received_(false),
       device_info_(),
-      loop_session_(nullptr) {
+      device_ready_(false),
+      loop_session_(nullptr),
+      current_command_(new EmptyCommand()) {
 }
 
 ApplicationController::~ApplicationController() {
@@ -46,6 +48,10 @@ void ApplicationController::HandleServicePacket(
   VLOG(2) << "Servcie Data: "
       << std::string(reinterpret_cast<const char*>(&data->at(0)),
                      data->size());
+
+  if (anet::http::Packet::Status::OK == packet.GetStatus()) {
+    device_ready_ = true;
+  }
 }
 
 void ApplicationController::NotifyServiceDataSend(
@@ -86,6 +92,18 @@ void ApplicationController::NotifyLoopSessionClose(
   }
 }
 
+void ApplicationController::PlayVideo(const std::string& url) {
+  LOG(INFO) << "Play video. URL: " << url;
+
+  current_command_.reset(new PlayCommand(url));
+}
+
+void ApplicationController::ResetCommand() {
+  LOG(INFO) << "Reset command";
+
+  current_command_.reset(new EmptyCommand());
+}
+
 void ApplicationController::SendGetConfigRequest() {
   anet::tcp::SessionPtr session = com_ctrl_.CreateHttpClientSession(
           boost::asio::ip::address::from_string(notification_.v2_url.host));
@@ -119,6 +137,48 @@ void ApplicationController::SendGetConfigRequest() {
   }
 }
 
+void ApplicationController::SendSwitchRequest() {
+  anet::tcp::SessionPtr session = com_ctrl_.CreateHttpClientSession(
+          boost::asio::ip::address::from_string(notification_.v2_url.host));
+  if (nullptr == session) {
+    DLOG(ERROR) << "SESSION NOT CREATED";
+  } else {
+    DLOG(INFO) << __PRETTY_FUNCTION__;
+    anet::http::Packet packet;
+    packet.Init(1,1, anet::http::Packet::Status::INIT,
+        anet::http::Packet::Method::GET, anet::http::Packet::Type::REQUEST);
+
+    packet.SetUrl(notification_.v2_url.path
+        + "channels/de.2kit.CastBrowser"); //parse url
+
+    packet.AddHeaderField("Host",
+        notification_.v2_url.host
+        + ((0 != notification_.v2_url.port) ?
+        (std::string(":") + std::to_string(notification_.v2_url.port)) : ""));
+
+    packet.AddHeaderField("User-Agent", "Dalvik/2.1.0 (Linux;)");
+    packet.AddHeaderField("Accept-Encoding", "gzip, deflate");
+    packet.AddHeaderField("Connection", "Upgrade");
+    packet.AddHeaderField("Accept", "*/*");
+    packet.AddHeaderField("Sec-WebSocket-Version", "13");
+    packet.AddHeaderField("Sec-WebSocket-Key", "+hhAR9DmQr6o/rbZSQQkpQ==");
+    packet.AddHeaderField("Sec-WebSocket-Extensions", "x-webkit-deflate-frame");
+    packet.AddHeaderField("Upgrade", "websocket");
+    packet.AddHeaderField("Pragma", "no-cache");
+    packet.AddHeaderField("Cache-Control", "no-cache");
+
+    anet::net::Session::BufferPtr buffer = packet.Serialize();
+    if (nullptr != buffer) {
+      DLOG(INFO) << "Send Switch request";
+      VLOG(2)
+          << std::string(reinterpret_cast<char*>(&buffer->at(0)),
+                         buffer->size());
+      session->Write(buffer);
+      session->Read();
+    }
+  }
+}
+
 void ApplicationController::HandleVideoListRequest(
     const anet::http::Url& url) {
   UpdateDeviceInfo(device_info_.stopped, "stopped", url);
@@ -134,6 +194,7 @@ void ApplicationController::HandleVideoListRequest(
   UpdateDeviceInfo(device_info_.model_id, "modelid", url);
   UpdateDeviceInfo(device_info_.real_model, "realmodel", url);
 
+  Control();
   ResponseVideoList();
 }
 
@@ -143,34 +204,19 @@ void ApplicationController::ResponseVideoList() {
   } else {
     DLOG(INFO) << __PRETTY_FUNCTION__;
 
-    std::time_t time = std::time(nullptr);
-    std::string timestamp = std::to_string(time);
-
     anet::http::Packet packet;
     packet.Init(1,1, anet::http::Packet::Status::OK,
         anet::http::Packet::Method::INIT, anet::http::Packet::Type::RESPONSE);
-
     packet.AddHeaderField("Connection", "keep-alive");
     packet.AddHeaderField("Access-Control-Allow-Origin", "*");
 
-    //Create XML
-    boost::property_tree::ptree tree;
-    tree.put("rss.<xmlattr>.version", "2.0");
-    tree.put("rss.channel.item.command", "EMPTY");
-    tree.put("rss.channel.item.commandTimestamp", timestamp);
-    std::stringstream output_stream;
-    boost::property_tree::write_xml(output_stream, tree);
-    std::string buffer = output_stream.str();
-
-    anet::http::Packet::BufferPtr body(
-        new anet::http::Packet::Buffer(buffer.begin(), buffer.end()));
+    anet::http::Packet::BufferPtr body = CreateRssPacket();
     packet.AddHeaderField("Content-Length", std::to_string(body->size()));
     packet.AssignBody(boost::move(body));
 
     anet::net::Session::BufferPtr new_buffer = packet.Serialize();
     if (nullptr != new_buffer) {
-      DLOG(INFO) << "NEW HTTP PACKET";
-      DLOG(INFO)
+      VLOG(2)
           << std::string(reinterpret_cast<char*>(&new_buffer->at(0)),
                          new_buffer->size());
       loop_session_->Write(new_buffer);
@@ -248,6 +294,27 @@ bool ApplicationController::ParseDeviceNotification(
   return retval;
 }
 
+anet::http::Packet::BufferPtr ApplicationController::CreateRssPacket() {
+  //Create XML
+  boost::property_tree::ptree tree;
+  tree.put("rss.<xmlattr>.version", "2.0");
+  tree.put("rss.channel.item.commandTimestamp",
+           std::to_string(std::time(nullptr)));
+  current_command_->UpdateTree(tree);
+  current_command_->send = true;
+
+  std::stringstream output_stream;
+  boost::property_tree::write_xml(output_stream, tree);
+  std::string buffer = output_stream.str();
+
+  anet::http::Packet::BufferPtr packet(
+      new anet::http::Packet::Buffer(buffer.begin(), buffer.end()));
+  return packet;
+}
+
+void ApplicationController::Control() {
+}
+
 void ApplicationController::UpdateDeviceInfo(
     uint32_t& value, const std::string& key, const anet::http::Url& url) {
   const std::string value_str = url.GetQueryParameter(key);
@@ -273,7 +340,6 @@ void ApplicationController::UpdateDeviceInfo(
         << "Device Info: {Key: " << key
         << ", Value: " << value_str << "}";
     value = ToBool(value_str);
-
   }
 }
 
@@ -303,4 +369,23 @@ DeviceNotification::Type DeviceNotification::ConvertToType(
   }
 
   return retval;
+}
+
+void EmptyCommand::UpdateTree(boost::property_tree::ptree& tree) {
+  tree.put("rss.channel.item.command", "EMPTY");
+}
+
+PlayCommand::PlayCommand(const std::string& url)
+    : url_(url),
+      timestamp_(std::time(nullptr)) {
+}
+
+void PlayCommand::UpdateTree(boost::property_tree::ptree& tree) {
+  std::string description = "Playing: " + url_;
+
+  tree.put("rss.channel.item.title", url_);
+  tree.put("rss.channel.item.link", url_);
+  tree.put("rss.channel.item.description", description);
+  tree.put("rss.channel.item.timestamp", std::to_string(timestamp_));
+  tree.put("rss.channel.item.command", "PLAY");
 }

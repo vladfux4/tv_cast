@@ -2,6 +2,7 @@
 #define APP_CTRL_H
 
 #include <boost/property_tree/ptree.hpp>
+#include <boost/move/unique_ptr.hpp>
 
 #include "anet/net/packet_observer.h"
 #include "anet/http/packet.h"
@@ -66,6 +67,37 @@ struct DeviceInfo {
   std::string real_model;
 };
 
+class RssCommand {
+ public:
+  enum class Type {
+    EMPTY,
+    PLAY
+  };
+
+  virtual ~RssCommand() {}
+  virtual Type GetType() = 0;
+  virtual void UpdateTree(boost::property_tree::ptree& tree) = 0;
+  bool send = false;
+};
+
+class EmptyCommand : public RssCommand {
+ public:
+  virtual ~EmptyCommand() {}
+  virtual Type GetType() { return Type::EMPTY; }
+  virtual void UpdateTree(boost::property_tree::ptree& tree);
+};
+
+class PlayCommand : public RssCommand {
+ public:
+  PlayCommand(const std::string& url);
+  virtual ~PlayCommand() {}
+  virtual Type GetType() { return Type::PLAY; }
+  virtual void UpdateTree(boost::property_tree::ptree& tree);
+ private:
+  std::string url_;
+  std::time_t timestamp_;
+};
+
 class ApplicationController {
  public:
   /**
@@ -110,11 +142,22 @@ class ApplicationController {
   virtual void NotifyLoopDataSend(anet::net::SessionPtr session);
   virtual void NotifyLoopSessionClose(anet::net::SessionPtr session);
 
+  void PlayVideo(const std::string& url);
+
+  void ResetCommand();
+
  private:
+  typedef boost::movelib::unique_ptr<RssCommand> RssCommandPtr;
+
   /**
    * @brief Send Get config service HTTP request
    */
   void SendGetConfigRequest();
+
+  /**
+   * @brief Send Get config service HTTP request
+   */
+  void SendSwitchRequest();
 
   /**
    * @brief Handle VideoList HTTP GET Request
@@ -137,6 +180,10 @@ class ApplicationController {
    */
   bool ParseDeviceNotification(boost::property_tree::ptree& tree);
 
+  anet::http::Packet::BufferPtr CreateRssPacket();
+
+  void Control();
+
   /**
    * @brief Update device info
    *
@@ -150,7 +197,6 @@ class ApplicationController {
                         const anet::http::Url& url);
   void UpdateDeviceInfo(std::string& value, const std::string& key,
                         const anet::http::Url& url);
-
   /**
    * @brief Convert string to to bool
    *
@@ -164,7 +210,9 @@ class ApplicationController {
   DeviceNotification notification_;
   bool notification_received_;
   DeviceInfo device_info_;
+  bool device_ready_;
   anet::net::SessionPtr loop_session_;
+  RssCommandPtr current_command_;
 };
 
 inline bool ApplicationController::ToBool(const std::string& str) const {
