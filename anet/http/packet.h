@@ -145,6 +145,34 @@ class Packet {
    */
   net::Session::BufferPtr Serialize() const;
 
+  /**
+   * @brief Get Status
+   *
+   * @return HTTP status
+   */
+  inline const Status GetStatus() const;
+
+  /**
+   * @brief Get method
+   *
+   * @return HTTP Method
+   */
+  inline const Method GetMethod() const;
+
+  /**
+   * @brief Get type
+   *
+   * @return HTTP Packet type
+   */
+  inline const Type GetType() const;
+
+  /**
+   * @brief Get Url
+   *
+   * @return string
+   */
+  inline const std::string& GetUrl() const;
+
   private:
   /**
    * @brief Get HTTP Status name
@@ -164,6 +192,22 @@ class Packet {
   std::map<std::string, std::string> header_fields_;
   BufferPtr body_;
 };
+
+const Packet::Status Packet::GetStatus() const {
+  return status_;
+}
+
+const Packet::Method Packet::GetMethod() const {
+  return method_;
+}
+
+const Packet::Type Packet::GetType() const {
+  return type_;
+}
+
+inline const std::string& Packet::GetUrl() const {
+  return url_;
+}
 
 }  // namespace http
 }  // namespace anet

@@ -46,25 +46,37 @@ class CommunicationController {
   /**
    * @brief Constructor
    */
-  CommunicationController();
+  CommunicationController(boost::asio::io_service& io_service);
 
   /**
    * @brief Destructor
    */
   virtual ~CommunicationController();
 
-  anet::tcp::SessionPtr CreateHttpClientSession(
-      const boost::asio::ip::tcp::endpoint& target);
-
+  /**
+   * @brief Register AppController
+   *
+   * @param ctrl Reference on Application Controller
+   */
   void RegisterAppController(ApplicationController& ctrl);
 
   /**
    * @brief Run
    */
-  void Run();
+  void Start();
+
+  /**
+   * @brief CreateHttpClientSession
+   *
+   * @param address Address to connect
+   *
+   * @return Pointer on session
+   */
+  anet::tcp::SessionPtr CreateHttpClientSession(
+      const boost::asio::ip::address& address);
 
  private:
-  boost::asio::io_service io_service_;
+  boost::asio::io_service& io_service_;
   anet::udp::Server udp_server_;
   anet::tcp::Client tcp_client_;
   anet::tcp::Server tcp_server_;

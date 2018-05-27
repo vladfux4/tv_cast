@@ -31,6 +31,8 @@ add_executable(${PROJECT_NAME}
 
     "anet/http/packet.h"
     "anet/http/packet.cc"
+    "anet/http/url.h"
+    "anet/http/url.cc"
     "anet/http/parser.h"
     "anet/http/parser.cc"
     "anet/http/session_observer.h"

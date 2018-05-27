@@ -8,11 +8,13 @@ int main(int argc, char* argv[]) {
   LOG(INFO) << "Start";
 
   try {
-    CommunicationController com_ctr;
-    ApplicationController app_ctrl;
+    boost::asio::io_service io_service;
+    CommunicationController com_ctr(io_service);
+    ApplicationController app_ctrl(com_ctr);
     com_ctr.RegisterAppController(app_ctrl);
+    com_ctr.Start();
 
-    com_ctr.Run();
+    io_service.run();
   } catch (std::exception& e) {
     LOG(ERROR) << "Exception: " << e.what();
   }

@@ -6,12 +6,21 @@
 
 #include "anet/net/packet_observer.h"
 
-CommunicationController::CommunicationController()
-  : io_service_(),
+namespace {
+
+const uint16_t SERVICE_PORT = 8001;
+const uint16_t LOOP_PORT = 49080;
+const char* SERVICE_ADDRESS = "224.0.0.7";
+
+}
+
+CommunicationController::CommunicationController(
+    boost::asio::io_service& io_service)
+  : io_service_(io_service),
     udp_server_(io_service_, boost::asio::ip::udp::endpoint(
-        boost::asio::ip::address::from_string("0.0.0.0"), 8001)),
+        boost::asio::ip::address::from_string("0.0.0.0"), SERVICE_PORT)),
     tcp_client_(io_service_),
-    tcp_server_(io_service_, 49080),
+    tcp_server_(io_service_, LOOP_PORT),
     udp_server_bridge_(nullptr),
     http_client_bridge_(nullptr),
     http_server_bridge_(nullptr),
@@ -22,12 +31,6 @@ CommunicationController::CommunicationController()
 
 CommunicationController::~CommunicationController() {
   DLOG(INFO) << __PRETTY_FUNCTION__;
-}
-anet::tcp::SessionPtr CommunicationController::CreateHttpClientSession(
-    const boost::asio::ip::tcp::endpoint& target) {
-  DLOG(INFO) << __PRETTY_FUNCTION__;
-
-  return tcp_client_.CreateSession(target);
 }
 
 void CommunicationController::RegisterAppController(
@@ -57,16 +60,23 @@ void CommunicationController::RegisterAppController(
   tcp_server_.RegisterCreator(*http_server_observer_creator_);
 }
 
-void CommunicationController::Run() {
+void CommunicationController::Start() {
   LOG(INFO) << __PRETTY_FUNCTION__;
 
   tcp_server_.Start();
 
   udp_server_.JoinMulticastGroup(
-      boost::asio::ip::address::from_string("224.0.0.7"));
-  udp_server_.Start();
+      boost::asio::ip::address::from_string(SERVICE_ADDRESS));
 
-  io_service_.run();
+  udp_server_.Start();
+}
+
+anet::tcp::SessionPtr CommunicationController::CreateHttpClientSession(
+    const boost::asio::ip::address& address) {
+  DLOG(INFO) << __PRETTY_FUNCTION__;
+
+  return tcp_client_.CreateSession(
+      boost::asio::ip::tcp::endpoint(address, SERVICE_PORT));
 }
 
 anet::net::PacketObserver::Status UdpServerBridge::HandleData(

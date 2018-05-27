@@ -171,11 +171,17 @@ int Parser::HandleHeaderComplete(http_parser* c_parser) {
         << "method(" << c_parser->method << " "
         << GetMethodString(c_parser->method) << ")";
 
+    Packet::Status status = Packet::Status::INIT;
+    Packet::Method method = Packet::Method::INIT;
+    Packet::Type type = Packet::Type::REQUEST;
+    if ((0 != c_parser->status_code)) {
+      status = static_cast<Packet::Status>(c_parser->status_code);
+      type = Packet::Type::RESPONSE;
+    } else {
+      method = static_cast<Packet::Method>(c_parser->method);
+    }
     packet_->Init(c_parser->http_major, c_parser->http_minor,
-        static_cast<Packet::Status>(c_parser->status_code),
-        static_cast<Packet::Method>(c_parser->method),
-        ((0 == c_parser->status_code) ?
-            Packet::Type::REQUEST : Packet::Type::REQUEST));
+                  status, method, type);
 
     VLOG(1) << "Content length:" << c_parser->content_length;
     content_length_ = c_parser->content_length;
