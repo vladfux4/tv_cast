@@ -11,7 +11,10 @@
 void InitLogger(const char* str);
 
 #ifdef ENABLE_GLOG
+
+#define NDEBUG
 #include <glog/logging.h>
+
 #else
 
 #include <iostream>

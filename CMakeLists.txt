@@ -8,7 +8,7 @@ find_package(Boost 1.60 REQUIRED system thread)
 find_package(glog 0.3.5 REQUIRED)
 find_package(gflags REQUIRED)
 
-set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_BUILD_TYPE Debug)
 
 include_directories(${Boost_INCLUDE_DIR} .)
 

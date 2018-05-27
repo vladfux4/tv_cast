@@ -50,6 +50,7 @@ void ApplicationController::HandleServicePacket(
                      data->size());
 
   if (anet::http::Packet::Status::OK == packet.GetStatus()) {
+    LOG(INFO) << "Device info received";
     device_ready_ = true;
   }
 }
@@ -181,18 +182,31 @@ void ApplicationController::SendSwitchRequest() {
 
 void ApplicationController::HandleVideoListRequest(
     const anet::http::Url& url) {
-  UpdateDeviceInfo(device_info_.stopped, "stopped", url);
-  UpdateDeviceInfo(device_info_.paused, "paused", url);
-  UpdateDeviceInfo(device_info_.buffering, "buffering", url);
-  UpdateDeviceInfo(device_info_.position, "position", url);
-  UpdateDeviceInfo(device_info_.duration, "duration", url);
-  UpdateDeviceInfo(device_info_.timestamp, "timestamp", url);
-  UpdateDeviceInfo(device_info_.platform, "platform", url);
-  UpdateDeviceInfo(device_info_.year, "year", url);
-  UpdateDeviceInfo(device_info_.version, "version", url);
-  UpdateDeviceInfo(device_info_.firmware, "firmware", url);
-  UpdateDeviceInfo(device_info_.model_id, "modelid", url);
-  UpdateDeviceInfo(device_info_.real_model, "realmodel", url);
+  DeviceInfo new_device_info;
+
+  UpdateDeviceInfo(new_device_info.stopped, "stopped", url);
+  UpdateDeviceInfo(new_device_info.paused, "paused", url);
+  UpdateDeviceInfo(new_device_info.buffering, "buffering", url);
+  UpdateDeviceInfo(new_device_info.position, "position", url);
+  UpdateDeviceInfo(new_device_info.duration, "duration", url);
+  UpdateDeviceInfo(new_device_info.timestamp, "timestamp", url);
+  UpdateDeviceInfo(new_device_info.platform, "platform", url);
+  UpdateDeviceInfo(new_device_info.year, "year", url);
+  UpdateDeviceInfo(new_device_info.version, "version", url);
+  UpdateDeviceInfo(new_device_info.firmware, "firmware", url);
+  UpdateDeviceInfo(new_device_info.model_id, "modelid", url);
+  UpdateDeviceInfo(new_device_info.real_model, "realmodel", url);
+
+  if ((device_info_.stopped != new_device_info.stopped)
+      || (device_info_.paused != new_device_info.paused)
+      || (device_info_.buffering != new_device_info.buffering)) {
+    LOG(INFO) << "Device State: {S:"
+        << std::to_string(new_device_info.stopped)
+        << ", P:" << std::to_string(new_device_info.paused)
+        << ", B:" << std::to_string(new_device_info.buffering)
+        << "}";
+  }
+  device_info_ = new_device_info;
 
   Control();
   ResponseVideoList();

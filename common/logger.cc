@@ -29,8 +29,8 @@ void InitLogger(const char* str) {
   FLAGS_logtostderr = 1;
   FLAGS_minloglevel = 0;
   FLAGS_colorlogtostderr = 1;
-  FLAGS_log_prefix = 1;
-  FLAGS_v = 1;
+  FLAGS_log_prefix = 0;
+  FLAGS_v = 0;
 
   google::InitGoogleLogging(str);
 #endif  // NO_GLOG
