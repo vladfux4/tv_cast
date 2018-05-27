@@ -67,14 +67,14 @@ void ApplicationController::HandleLoopPacket(
   loop_session_ = session;
 
   anet::net::Session::BufferPtr data = packet.Serialize();
-  LOG(INFO) << "Servcie Data: "
+  VLOG(2) << "Servcie Data: "
       << std::string(reinterpret_cast<const char*>(&data->at(0)),
                      data->size());
   if ((anet::http::Packet::Type::REQUEST == packet.GetType())
       && anet::http::Packet::Method::GET == packet.GetMethod()) {
     anet::http::Url url(packet.GetUrl());
 
-    LOG(INFO) << "Path: " << url.path;
+    DLOG(INFO) << "Path: " << url.path;
     if ("/videoList.xml" == url.path) {
       HandleVideoListRequest(url);
     }
@@ -93,7 +93,7 @@ void ApplicationController::NotifyLoopSessionClose(
 }
 
 void ApplicationController::PlayVideo(const std::string& url) {
-  LOG(INFO) << "Play video. URL: " << url;
+  LOG(INFO) << "Request Play video. URL: " << url;
 
   current_command_.reset(new PlayCommand(url));
 }
