@@ -312,8 +312,6 @@ anet::http::Packet::BufferPtr ApplicationController::CreateRssPacket() {
   //Create XML
   boost::property_tree::ptree tree;
   tree.put("rss.<xmlattr>.version", "2.0");
-  tree.put("rss.channel.item.commandTimestamp",
-           std::to_string(std::time(nullptr)));
   current_command_->UpdateTree(tree);
   current_command_->send = true;
 
@@ -387,11 +385,11 @@ DeviceNotification::Type DeviceNotification::ConvertToType(
 
 void EmptyCommand::UpdateTree(boost::property_tree::ptree& tree) {
   tree.put("rss.channel.item.command", "EMPTY");
+  tree.put("rss.channel.item.commandTimestamp", std::to_string(timestamp_));
 }
 
 PlayCommand::PlayCommand(const std::string& url)
-    : url_(url),
-      timestamp_(std::time(nullptr)) {
+    : url_(url) {
 }
 
 void PlayCommand::UpdateTree(boost::property_tree::ptree& tree) {
@@ -402,4 +400,9 @@ void PlayCommand::UpdateTree(boost::property_tree::ptree& tree) {
   tree.put("rss.channel.item.description", description);
   tree.put("rss.channel.item.timestamp", std::to_string(timestamp_));
   tree.put("rss.channel.item.command", "PLAY");
+  tree.put("rss.channel.item.commandTimestamp", std::to_string(timestamp_));
+}
+
+RssCommand::RssCommand()
+    : timestamp_(std::time(nullptr)) {
 }

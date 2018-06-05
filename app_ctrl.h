@@ -74,10 +74,15 @@ class RssCommand {
     PLAY
   };
 
+  RssCommand();
+
   virtual ~RssCommand() {}
   virtual Type GetType() = 0;
   virtual void UpdateTree(boost::property_tree::ptree& tree) = 0;
   bool send = false;
+
+ protected:
+  std::time_t timestamp_;
 };
 
 class EmptyCommand : public RssCommand {
@@ -95,7 +100,6 @@ class PlayCommand : public RssCommand {
   virtual void UpdateTree(boost::property_tree::ptree& tree);
  private:
   std::string url_;
-  std::time_t timestamp_;
 };
 
 class ApplicationController {
