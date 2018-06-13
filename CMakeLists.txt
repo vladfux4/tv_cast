@@ -41,6 +41,9 @@ add_executable(${PROJECT_NAME}
     "anet/extra/http_parser.h"
     "anet/extra/http_parser.c"
 
+    "asio_ext/netlink.h"
+    "asio_ext/netlink_endpoint.h"
+
     "common/logger.h"
     "common/logger.cc"
 
